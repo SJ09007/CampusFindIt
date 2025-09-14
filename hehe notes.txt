@@ -1,0 +1,32 @@
+Backend stuff (what's needed , not in order)
+1. login/sign up
+(2 type of profile roles : prof building - same , prof role : common user/ administrator
+2. post : lost/found (form)
+3. email 
+4. otp
+5. notification system
+6. web sockets for real time connections and chatting 
+7. admin dashboard (delete or flag posts / block users)
+
+### Authentication : not firebase (khud ka)
+
+
+mtlbbb (sunaayi nhi diya)
+M: MongoDB + Redis(ALSO , We'll use MongoDB ATLAS : Cloud wala) 
+E : Express 
+R : React 
+N : Node ( Nodejs)
+
+Redis : Key-value database 
+complex toh nhi hoga zyada?
+ALSOO , if u want , we can switch to Django , sambhaal loge?
+hehe alrighttt yeahhh :)
+html kaun likhegaa
+React + Modular CSS/Tailwind CSS 
+hn hn theeke theeke
+aage
+toh toh toh
+but but but 
+Gimme a time slot abhi se , mujhe toh theek h , am flexible (bass 6 se 9:30 tk nhi)
+Iske alava anytime is cool
+dikhaane laayak in 3 weeks
