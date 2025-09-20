@@ -16,6 +16,11 @@ const userSchema = mongoose.Schema(
       required: true,
       unique: true,
     },
+    phonenumber: {
+      type: String,
+      required: true,
+      unique: true,
+    },
     password: {
       type: String,
       required: true,
@@ -26,11 +31,9 @@ const userSchema = mongoose.Schema(
     },
     studentId: {
       type: String,
-      required: false,
+      sparse: true,
       unique: true,
     },
   },
   { timestamps: true }
 );
-
-module.exports = mongoose.model("User", userSchema);

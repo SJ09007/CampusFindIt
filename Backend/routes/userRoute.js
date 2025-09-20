@@ -13,4 +13,6 @@ router.route("/get/:id").get(isauth, userController.get_user_detail);
 
 router.route("/changepassword/:id").put(isauth, userController.changepassword);
 
+router.route("/update/:id").put(isauth, userController.update_user);
+
 module.exports = router;

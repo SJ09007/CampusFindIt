@@ -19,6 +19,12 @@ const registerUser = async (req, res) => {
     ) {
       return res.status(400).json("Password is not strong enough");
     }
+
+    phonenumber = req.body.phonenumber;
+    if (!validator.isMobilePhone(phonenumber, "any")) {
+      return res.status(400).json("Phone number is not valid");
+    }
+
     const hashedPassword = await bcrypt.hash(req.body.password, salt);
 
     const existinguser = await User.findOne({ email: req.body.email });
@@ -53,6 +59,7 @@ const registerUser = async (req, res) => {
       email: req.body.email,
       studentId: req.body.studentId,
       password: hashedPassword,
+      phonenumber: req.body.phonenumber,
       studentId: req.body.studentId || null,
     });
     const user = await newUser.save();
@@ -158,6 +165,22 @@ const changepassword = async (req, res) => {
   }
 };
 
+const update_user = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user) {
+      return res.status(404).json("User not found");
+    }
+    if (user.isdeleted) {
+      return res.status(400).json("User has been deleted");
+    }
+    await User.findByIdAndUpdate(req.params.id, req.body);
+    res.status(200).json("User has been updated");
+  } catch (err) {
+    res.status(500).json(err);
+  }
+};
+
 module.exports = {
   registerUser,
   login,
@@ -165,4 +188,5 @@ module.exports = {
   delete_user,
   get_user_detail,
   changepassword,
+  update_user,
 };
