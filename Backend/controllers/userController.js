@@ -2,6 +2,7 @@ const User = require("../models/usersModel");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const validator = require("validator");
+const sendEmail = require("../service/emailService");
 
 const registerUser = async (req, res) => {
   try {
@@ -23,6 +24,12 @@ const registerUser = async (req, res) => {
     const existinguser = await User.findOne({ email: req.body.email });
 
     if (existinguser && !existinguser.isdeleted) {
+      await sendEmail(
+        process.env.SMTP_EMAIL,
+        req.body.email,
+        "User already exists",
+        "User already exists"
+      );
       return res.status(400).json("User already exists");
     }
     if (existinguser && existinguser.isdeleted) {
@@ -32,16 +39,29 @@ const registerUser = async (req, res) => {
         password: hashedPassword,
       });
       return res.status(200).json("User has been register again");
+      await sendEmail(
+        process.env.SMTP_EMAIL,
+        req.body.email,
+        "User registered again",
+        "User registered again"
+      );
     }
 
     const newUser = new User({
       fullname: req.body.fullname,
       username: req.body.username,
       email: req.body.email,
+      studentId: req.body.studentId,
       password: hashedPassword,
       studentId: req.body.studentId || null,
     });
     const user = await newUser.save();
+    await sendEmail(
+      process.env.SMTP_EMAIL,
+      req.body.email,
+      "User registered",
+      "User registered "
+    );
     res.status(200).json(user);
   } catch (err) {
     console.log(err);
@@ -100,6 +120,12 @@ const delete_user = async (req, res) => {
       return res.status(404).json("User not found");
     }
     await User.findByIdAndUpdate(req.params.id, { isdeleted: true });
+    await sendEmail(
+      process.env.SMTP_EMAIL,
+      req.body.email,
+      "User deleted",
+      "User deleted"
+    );
     res.status(200).json("User has been deleted");
   } catch (err) {
     res.status(500).json(err);
