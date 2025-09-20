@@ -34,6 +34,10 @@ const userSchema = mongoose.Schema(
       sparse: true,
       unique: true,
     },
+    isactive: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true }
 );
