@@ -59,7 +59,14 @@ const login = async (req, res) => {
     }
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
     const { password, ...others } = user._doc;
-    res.status(200).json({ ...others, token });
+    res
+      .status(200)
+      .cookie("access_token", token, {
+        httpOnly: true,
+        sameSite: "none",
+        secure: true,
+      })
+      .json({ ...others, token });
   } catch (err) {
     res.status(500).json(err);
   }
