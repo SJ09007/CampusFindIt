@@ -22,8 +22,16 @@ const registerUser = async (req, res) => {
 
     const existinguser = await User.findOne({ email: req.body.email });
 
-    if (existinguser) {
+    if (existinguser && !existinguser.isdeleted) {
       return res.status(400).json("User already exists");
+    }
+    if (existinguser && existinguser.isdeleted) {
+      await User.findByIdAndUpdate(existinguser._id, { isdeleted: false });
+      // update password
+      await User.findByIdAndUpdate(existinguser._id, {
+        password: hashedPassword,
+      });
+      return res.status(200).json("User has been register again");
     }
 
     const newUser = new User({
@@ -113,10 +121,22 @@ const get_user_detail = async (req, res) => {
   }
 };
 
+const changepassword = async (req, res) => {
+  try {
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(req.body.password, salt);
+    await User.findByIdAndUpdate(req.params.id, { password: hashedPassword });
+    res.status(200).json("Password has been changed");
+  } catch (err) {
+    res.status(500).json(err);
+  }
+};
+
 module.exports = {
   registerUser,
   login,
   logout,
   delete_user,
   get_user_detail,
+  changepassword,
 };
