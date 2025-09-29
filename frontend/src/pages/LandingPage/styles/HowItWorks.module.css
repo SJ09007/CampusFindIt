@@ -1,0 +1,28 @@
+.howItWorks {
+  text-align: center;
+  padding: 3rem 2rem;
+  background-color: #ffffff;
+}
+
+.howItWorks h2 {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.steps {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+.steps div {
+  padding: 1.5rem;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  background: #f8f9fa;
+}
+
+.steps h3 {
+  margin-bottom: 0.5rem;
+}

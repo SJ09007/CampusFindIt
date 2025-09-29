@@ -1,0 +1,22 @@
+.stats {
+  display: flex;
+  justify-content: space-around;
+  padding: 3rem 2rem;
+  background-color: #eef3ff;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.stats div {
+  text-align: center;
+}
+
+.stats h3 {
+  font-size: 2rem;
+  color: #007bff;
+  margin-bottom: 0.3rem;
+}
+
+.stats p {
+  font-size: 1rem;
+}
