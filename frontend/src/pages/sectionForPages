@@ -1,1 +1,9 @@
 1. Landing Page 
+2. Authentication (Login/SignUp)
+3. OTP Verification Page 
+
+SignUp --> OTP Verification --> Login Automatically or Direct to Login Page --> After Login --> HomePage
+Login --> HomePage 
+
+4. HomePage
+
