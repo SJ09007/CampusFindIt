@@ -1,0 +1,72 @@
+.pageContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: #f5f7fb;
+  min-height: 100vh;
+}
+
+.otpBox {
+  margin-top: 120px;
+  padding: 2rem 3rem;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  width: 350px;
+}
+
+.title {
+  margin-bottom: 0.5rem;
+  font-size: 1.5rem;
+}
+
+.infoText {
+  color: #555;
+  font-size: 0.9rem;
+  margin-bottom: 1.5rem;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.2rem;
+}
+
+.otpInput {
+  width: 180px;
+  padding: 0.75rem;
+  font-size: 1.3rem;
+  text-align: center;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  letter-spacing: 12px;
+}
+
+.verifyButton {
+  padding: 0.75rem 2rem;
+  background: #4caf50;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.verifyButton:hover {
+  background: #43a047;
+}
+
+.resendText {
+  margin-top: 1rem;
+  font-size: 0.85rem;
+  color: #666;
+}
+
+.resendText span {
+  color: #4a90e2;
+  cursor: pointer;
+  font-weight: bold;
+}

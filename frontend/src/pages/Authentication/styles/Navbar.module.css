@@ -1,0 +1,21 @@
+.navbar {
+  position: fixed; /* ✅ top pe fix */
+  top: 0;
+  left: 0;
+  width: 100%;
+  padding: 1rem 2rem;
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid #ccc;
+  background: #fff;
+  z-index: 1000; /* ✅ always above other content */
+}
+
+.logo {
+  font-size: 1.2rem;
+  font-weight: bold;
+  padding: 0.5rem 1rem;
+  border: 1px solid #333;
+  border-radius: 30px;
+  cursor: pointer;
+}
