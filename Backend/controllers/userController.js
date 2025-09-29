@@ -3,7 +3,6 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const validator = require("validator");
 const sendEmail = require("../service/emailService");
-
 const registerUser = async (req, res) => {
   try {
     const salt = await bcrypt.genSalt(10);
@@ -19,12 +18,10 @@ const registerUser = async (req, res) => {
     ) {
       return res.status(400).json("Password is not strong enough");
     }
-
     phonenumber = req.body.phonenumber;
     if (!validator.isMobilePhone(phonenumber, "any")) {
       return res.status(400).json("Phone number is not valid");
     }
-
     const hashedPassword = await bcrypt.hash(req.body.password, salt);
 
     const existinguser = await User.findOne({ email: req.body.email });
@@ -74,7 +71,6 @@ const registerUser = async (req, res) => {
     res.status(500).json(err);
   }
 };
-
 const login = async (req, res) => {
   try {
     const user = await User.findOne({ email: req.body.email });
@@ -87,7 +83,6 @@ const login = async (req, res) => {
     if (user.isactive == false) {
       return res.status(400).json("User is not active");
     }
-
     const validPassword = await bcrypt.compare(
       req.body.password,
       user.password
@@ -109,7 +104,6 @@ const login = async (req, res) => {
     res.status(500).json(err);
   }
 };
-
 const logout = async (req, res) => {
   try {
     res.clearCookie("access_token", {
@@ -121,7 +115,6 @@ const logout = async (req, res) => {
     res.status(500).json(err);
   }
 };
-
 const delete_user = async (req, res) => {
   try {
     // soft delete
@@ -131,6 +124,12 @@ const delete_user = async (req, res) => {
     }
     if (user.isdeleted) {
       return res.status(400).json("User has been deleted");
+    }
+    if (user.isactive == false) {
+      return res.status(400).json("User is not active");
+    }
+    if (req.id != req.params.id) {
+      return res.status(400).json("You can only delete your account");
     }
     await User.findByIdAndUpdate(req.params.id, { isdeleted: true });
     await sendEmail(
@@ -144,7 +143,6 @@ const delete_user = async (req, res) => {
     res.status(500).json(err);
   }
 };
-
 const get_user_detail = async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
@@ -159,7 +157,6 @@ const get_user_detail = async (req, res) => {
     res.status(500).json(err);
   }
 };
-
 const changepassword = async (req, res) => {
   try {
     const salt = await bcrypt.genSalt(10);
@@ -170,7 +167,6 @@ const changepassword = async (req, res) => {
     res.status(500).json(err);
   }
 };
-
 const update_user = async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
@@ -183,13 +179,15 @@ const update_user = async (req, res) => {
     if (user.isactive == false) {
       return res.status(400).json("User is not active");
     }
+    if (req.id != req.params.id) {
+      return res.status(400).json("You can only update your account");
+    }
     await User.findByIdAndUpdate(req.params.id, req.body);
     res.status(200).json("User has been updated");
   } catch (err) {
     res.status(500).json(err);
   }
 };
-
 module.exports = {
   registerUser,
   login,
