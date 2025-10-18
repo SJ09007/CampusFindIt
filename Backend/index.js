@@ -5,6 +5,9 @@ const app = express();
 const connectDB = require("./config/db");
 const userRoute = require("./routes/userRoute");
 const otpRoute = require("./routes/otpVerificationRoute");
+const itemRoute = require("./routes/itemsRoute");
+const claimRoute = require("./routes/claimsRoute");
+
 const cookieParser = require("cookie-parser");
 const { connectRedis } = require("./config/redisconn");
 
@@ -19,6 +22,8 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use("/api/users", userRoute);
 app.use("/api/otp", otpRoute);
+app.use("/api/items", itemRoute);
+app.use("/api/claims", claimRoute);
 
 connectDB()
   .then(() => {

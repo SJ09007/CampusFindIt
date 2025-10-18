@@ -4,6 +4,9 @@ const userController = require("../controllers/userController");
 const isauth = require("../service/userAuth");
 
 router.route("/register").post(userController.registerUser);
+
+router.route("/registeradmin").post(userController.registerAdmin);
+
 router.route("/login").post(userController.login);
 
 router.route("/logout").post(isauth, userController.logout);

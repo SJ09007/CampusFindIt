@@ -10,7 +10,8 @@ const isAuthenticted = async (req, res, next) => {
     if (!decoded) {
       return res.status(401).json("You are not authenticated");
     }
-    req.id = decoded.id;
+    // req.id = decoded.id;
+    req.user = decoded;
     next();
   } catch (err) {
     res.status(500).json(err);
