@@ -1,7 +1,8 @@
 import React from "react";
 import styles from "../styles/Navbar.module.css";
 
-const Navbar = () => {
+// CRITICAL CHANGE: Accept onNavigate prop
+const Navbar = ({ onNavigate }) => {
   return (
     <nav className={styles.navbar}>
       <div className={styles.logo}>Campus Lost & Found</div>
@@ -11,8 +12,13 @@ const Navbar = () => {
         <li>Contact</li>
       </ul>
       <div className={styles.authButtons}>
-        <button className={styles.login}>Login</button>
-        <button className={styles.signup}>Sign Up</button>
+        {/* CRITICAL CHANGE: Call onNavigate on button click */}
+        <button className={styles.login} onClick={() => onNavigate("auth")}>
+          Login
+        </button>
+        <button className={styles.signup} onClick={() => onNavigate("auth")}>
+          Sign Up
+        </button>
       </div>
     </nav>
   );

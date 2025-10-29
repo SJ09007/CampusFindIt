@@ -1,0 +1,165 @@
+hello.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modalContent {
+  background: white;
+  padding: 2rem;
+  border-radius: 10px;
+  width: 90%;
+  max-width: 600px;
+  position: relative;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.closeButton {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #333;
+}
+
+.title {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+  color: #2c3e50;
+}
+
+.statusPill {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 50px;
+  font-size: 0.75rem;
+  font-weight: bold;
+  margin-bottom: 1.5rem;
+}
+
+.statusLost {
+  background-color: #fce4ec; /* Light Red */
+  color: #c2185b; /* Dark Pink */
+}
+
+.statusFound {
+  background-color: #e8f5e9; /* Light Green */
+  color: #388e3c; /* Dark Green */
+}
+
+.detailGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  padding: 1rem 0;
+  border-top: 1px solid #eee;
+  border-bottom: 1px solid #eee;
+}
+
+.description {
+  font-size: 1rem;
+  line-height: 1.5;
+  margin-bottom: 2rem;
+}
+
+.actionArea {
+  text-align: center;
+}
+
+.claimButton {
+  padding: 0.75rem 2rem;
+  font-size: 1.1rem;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.claimButton:hover:not([disabled]) {
+  background-color: #0056b3;
+}
+
+.claimButton:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.claimedButton,
+.posterButton {
+  padding: 0.75rem 2rem;
+  font-size: 1.1rem;
+  background-color: #f0f0f0;
+  color: #666;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  cursor: not-allowed;
+}
+
+.errorText {
+  color: #c2185b;
+  margin-top: 1rem;
+  font-weight: 500;
+}
+
+.successText {
+  color: #388e3c;
+  margin-top: 1rem;
+  font-weight: 500;
+}
+
+.claimSection {
+  margin-top: 1.5rem;
+  padding: 1.5rem;
+  border: 1px dashed #ccc;
+  border-radius: 8px;
+}
+
+.claimHeader {
+  font-size: 1.2rem;
+  color: #007bff;
+  margin-bottom: 1rem;
+  border-bottom: 2px solid #eee;
+  padding-bottom: 0.5rem;
+}
+
+.claimEntry {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.claimEntry:last-child {
+  border-bottom: none;
+}
+
+.reuniteButton {
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  background-color: #4caf50; /* Green */
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.reuniteButton:hover:not([disabled]) {
+  background-color: #43a047;
+}

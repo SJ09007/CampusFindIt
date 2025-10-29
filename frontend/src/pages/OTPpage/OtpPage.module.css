@@ -65,8 +65,15 @@
   color: #666;
 }
 
-.resendText span {
+/* Added styles for resend button state */
+.resendText span.activeResend {
   color: #4a90e2;
   cursor: pointer;
+  font-weight: bold;
+}
+
+.resendText span.disabledResend {
+  color: #999;
+  cursor: not-allowed;
   font-weight: bold;
 }

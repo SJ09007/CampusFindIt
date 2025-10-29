@@ -1,34 +1,83 @@
 .pageContainer {
-  height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #f2f5f9;
+  /* Ensure the container spans the full viewport height */
+  min-height: 100vh;
+  background: #f5f7fb;
+  /* Add padding equal to or slightly more than the Navbar height (e.g., 70px) */
+  padding-top: 70px;
 }
 
 .authContainer {
+  /* CRITICAL FIX: Use flex to center content in the remaining space */
   display: flex;
-  width: 900px;
+  flex-grow: 1; /* Allow container to fill vertical space below Navbar */
+  align-items: center; /* Center vertically */
+  justify-content: center; /* Center horizontally */
+
   max-width: 95%;
-  height: 500px;
+  margin: 0 auto; /* Center the authContainer itself */
+
+  /* The authentication box dimensions */
   background: white;
   border-radius: 12px;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
   overflow: hidden;
+  height: 500px; /* Example fixed height for the two-panel look */
+  margin-top: 50px; /* Add some margin from the top padding */
+  margin-bottom: 50px;
 }
 
 .panelContainer {
-  flex: 1;
+  flex: 1; /* Left panel takes equal space */
   background: #f7f9fc;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   border-right: 1px solid #ddd;
 }
 
 .formContainer {
-  flex: 2;
+  flex: 1; /* Right form takes equal space */
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  padding: 2rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 800px) {
+  .authContainer {
+    /* Stack panels vertically on smaller screens */
+    flex-direction: column;
+    height: auto;
+    min-height: 90vh;
+    margin: 20px auto;
+    padding: 0;
+  }
+  .panelContainer {
+    border-right: none;
+    border-bottom: 1px solid #ddd;
+    padding: 1.5rem;
+  }
+  .formContainer {
+    padding: 1.5rem;
+  }
+}
+
+/* Style for password hint box in SignupForm */
+.passwordHint {
+  background: #fff8e1;
+  border: 1px solid #ffe0b2;
+  border-radius: 4px;
+  padding: 10px;
+  margin-top: 5px;
+  font-size: 0.8rem;
+  color: #333;
+}
+
+.passwordHint ul {
+  list-style: disc;
+  margin-left: 20px;
+  padding-left: 0;
 }

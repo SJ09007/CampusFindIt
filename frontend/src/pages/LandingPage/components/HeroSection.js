@@ -1,7 +1,8 @@
 import React from "react";
 import styles from "../styles/HeroSection.module.css";
 
-const HeroSection = () => {
+// CRITICAL CHANGE: Accept onNavigate prop
+const HeroSection = ({ onNavigate }) => {
   return (
     <section className={styles.hero}>
       <div className={styles.textContent}>
@@ -11,8 +12,19 @@ const HeroSection = () => {
           owners quickly and securely.
         </p>
         <div className={styles.buttons}>
-          <button className={styles.btnPrimary}>Report Lost Item</button>
-          <button className={styles.btnSecondary}>Report Found Item</button>
+          {/* CRITICAL CHANGE: Call onNavigate on button click */}
+          <button
+            className={styles.btnPrimary}
+            onClick={() => onNavigate("auth")}
+          >
+            Report Lost Item
+          </button>
+          <button
+            className={styles.btnSecondary}
+            onClick={() => onNavigate("auth")}
+          >
+            Report Found Item
+          </button>
         </div>
       </div>
       <div className={styles.illustration}>
