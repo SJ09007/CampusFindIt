@@ -1,0 +1,46 @@
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  background: #ffffff;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.logo {
+  font-size: 1.4rem;
+  font-weight: bold;
+  color: #2563eb;
+}
+
+.links {
+  display: flex;
+  gap: 1.5rem;
+  list-style: none;
+}
+
+.links li {
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.actions input {
+  padding: 0.5rem 1rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+.actions button {
+  background: #2563eb;
+  color: white;
+  padding: 0.6rem 1rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}

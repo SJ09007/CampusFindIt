@@ -1,0 +1,28 @@
+.section {
+  margin: 2rem;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+.card {
+  background: #fff;
+  border-radius: 10px;
+  padding: 1rem;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+}
+
+.tag {
+  color: #16a34a;
+  font-weight: bold;
+}

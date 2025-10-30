@@ -1,0 +1,38 @@
+.footer {
+  background: #111827;
+  color: #d1d5db;
+  padding: 2rem;
+  margin-top: 2rem;
+}
+
+.columns {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 2rem;
+}
+
+h4 {
+  color: #fff;
+  margin-bottom: 0.8rem;
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+}
+
+li {
+  margin-bottom: 0.4rem;
+  cursor: pointer;
+}
+
+.logo h3 {
+  color: #3b82f6;
+}
+
+.copy {
+  text-align: center;
+  margin-top: 2rem;
+  font-size: 0.9rem;
+  color: #9ca3af;
+}
