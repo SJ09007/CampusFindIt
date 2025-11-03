@@ -3,6 +3,8 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const validator = require("validator");
 const sendEmail = require("../service/emailService");
+const otpservice = require("../service/otpService");
+const { client } = require("../config/redisconn");
 
 const registerAdmin = async (req, res) => {
   try {
@@ -98,8 +100,11 @@ const registerUser = async (req, res) => {
 
 const login = async (req, res) => {
   try {
+    console.time("login_total");
     const user = await User.findOne({ email: req.body.email });
+    console.timeLog("login_total", "db_find_complete");
     if (!user) {
+      console.timeEnd("login_total");
       return res.status(404).json("User not found");
     }
     if (user.isdeleted) {
@@ -113,10 +118,13 @@ const login = async (req, res) => {
       req.body.password,
       user.password
     );
+    console.timeLog("login_total", "bcrypt_compare_complete");
     if (!validPassword) {
+      console.timeEnd("login_total");
       return res.status(400).json("Wrong Password");
     }
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
+    console.timeLog("login_total", "jwt_sign_complete");
     const { password, ...others } = user._doc;
     res
       .status(200)
@@ -126,6 +134,7 @@ const login = async (req, res) => {
         secure: true,
       })
       .json({ ...others, token });
+    console.timeEnd("login_total");
   } catch (err) {
     res.status(500).json(err);
   }
@@ -198,6 +207,128 @@ const changepassword = async (req, res) => {
   }
 };
 
+const forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email) return res.status(400).json("Email is required");
+
+    const user = await User.findOne({ email });
+    if (!user || user.isdeleted) {
+      return res
+        .status(404)
+        .json("User not registered, sign up to create an account");
+    }
+
+    const result = await otpservice.sendOtp(email);
+    return res.status(200).json(result);
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json(err);
+  }
+};
+
+const resetPassword = async (req, res) => {
+  try {
+    const { email, otp, password } = req.body;
+    if (!email || !otp || !password)
+      return res.status(400).json("Email, OTP and new password are required");
+
+    const user = await User.findOne({ email });
+    if (!user || user.isdeleted) {
+      return res
+        .status(404)
+        .json("User not registered, sign up to create an account");
+    }
+
+    const verify = await otpservice.verifyOtp(email, otp);
+    if (!verify || !verify.success) {
+      return res.status(400).json(verify);
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+    await User.findByIdAndUpdate(user._id, {
+      password: hashedPassword,
+      isactive: true,
+    });
+
+    return res.status(200).json("Password updated successfully");
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json(err);
+  }
+};
+
+// Verify OTP specifically for password reset (does not activate user)
+const verifyResetOtp = async (req, res) => {
+  try {
+    const { email, otp } = req.body;
+    if (!email || !otp)
+      return res.status(400).json("Email and OTP are required");
+
+    const user = await User.findOne({ email });
+    if (!user || user.isdeleted) {
+      return res
+        .status(404)
+        .json("User not registered, sign up to create an account");
+    }
+
+    const verify = await otpservice.verifyOtp(email, otp);
+    if (!verify || !verify.success) {
+      return res.status(400).json(verify);
+    }
+
+    // mark as verified for a short window so the client can submit the new password
+    try {
+      await client.setEx(`otp:${email}:verified`, 300, "1");
+    } catch (e) {
+      console.error("Failed to set redis verified flag", e);
+    }
+
+    return res.status(200).json({ success: true, message: "OTP verified" });
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json(err);
+  }
+};
+
+// Confirm password reset after OTP verification (no OTP required here)
+const confirmResetPassword = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    if (!email || !password)
+      return res.status(400).json("Email and new password are required");
+
+    const user = await User.findOne({ email });
+    if (!user || user.isdeleted) {
+      return res
+        .status(404)
+        .json("User not registered, sign up to create an account");
+    }
+
+    const verified = await client.get(`otp:${email}:verified`);
+    if (!verified) {
+      return res.status(400).json("OTP not verified or expired");
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+    await User.findByIdAndUpdate(user._id, { password: hashedPassword });
+
+    // consume the verified flag
+    try {
+      await client.del(`otp:${email}:verified`);
+    } catch (e) {
+      console.error("Failed to delete redis verified flag", e);
+    }
+
+    return res.status(200).json("Password updated successfully");
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json(err);
+  }
+};
+
 const update_user = async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
@@ -229,4 +360,8 @@ module.exports = {
   changepassword,
   update_user,
   registerAdmin,
+  forgotPassword,
+  resetPassword,
+  verifyResetOtp,
+  confirmResetPassword,
 };
