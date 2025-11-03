@@ -1,7 +1,15 @@
 import React, { useState } from "react";
 import styles from "../styles/PasswordInput.module.css";
 
-const PasswordInput = ({ placeholder }) => {
+const PasswordInput = ({
+  placeholder,
+  value,
+  onChange,
+  name,
+  required,
+  onFocus,
+  onBlur,
+}) => {
   const [showPassword, setShowPassword] = useState(false);
 
   return (
@@ -10,6 +18,12 @@ const PasswordInput = ({ placeholder }) => {
         type={showPassword ? "text" : "password"}
         placeholder={placeholder}
         className={styles.input}
+        value={value}
+        onChange={onChange}
+        name={name}
+        required={required}
+        onFocus={onFocus}
+        onBlur={onBlur}
       />
       <button
         type="button"

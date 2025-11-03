@@ -6,4 +6,5 @@ const isauth = require("../service/userAuth");
 router.route("/sendotp").post(otpcontroller.sendOtp);
 router.route("/verifyotp").post(otpcontroller.verifyOtp);
 
+
 module.exports = router;

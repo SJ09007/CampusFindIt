@@ -1,8 +1,10 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import styles from "../styles/Navbar.module.css";
 
-// CRITICAL CHANGE: Accept onNavigate prop
-const Navbar = ({ onNavigate }) => {
+const Navbar = () => {
+  const navigate = useNavigate();
+
   return (
     <nav className={styles.navbar}>
       <div className={styles.logo}>Campus Lost & Found</div>
@@ -12,11 +14,18 @@ const Navbar = ({ onNavigate }) => {
         <li>Contact</li>
       </ul>
       <div className={styles.authButtons}>
-        {/* CRITICAL CHANGE: Call onNavigate on button click */}
-        <button className={styles.login} onClick={() => onNavigate("auth")}>
+        <button
+          className={styles.login}
+          onClick={() => navigate("/auth", { state: { initialView: "login" } })}
+        >
           Login
         </button>
-        <button className={styles.signup} onClick={() => onNavigate("auth")}>
+        <button
+          className={styles.signup}
+          onClick={() =>
+            navigate("/auth", { state: { initialView: "signup" } })
+          }
+        >
           Sign Up
         </button>
       </div>

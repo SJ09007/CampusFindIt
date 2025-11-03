@@ -1,8 +1,10 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import styles from "../styles/HeroSection.module.css";
 
-// CRITICAL CHANGE: Accept onNavigate prop
-const HeroSection = ({ onNavigate }) => {
+const HeroSection = () => {
+  const navigate = useNavigate();
+
   return (
     <section className={styles.hero}>
       <div className={styles.textContent}>
@@ -12,16 +14,15 @@ const HeroSection = ({ onNavigate }) => {
           owners quickly and securely.
         </p>
         <div className={styles.buttons}>
-          {/* CRITICAL CHANGE: Call onNavigate on button click */}
           <button
             className={styles.btnPrimary}
-            onClick={() => onNavigate("auth")}
+            onClick={() => navigate("/auth")}
           >
             Report Lost Item
           </button>
           <button
             className={styles.btnSecondary}
-            onClick={() => onNavigate("auth")}
+            onClick={() => navigate("/auth")}
           >
             Report Found Item
           </button>

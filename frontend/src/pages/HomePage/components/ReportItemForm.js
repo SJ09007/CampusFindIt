@@ -34,9 +34,7 @@ const ReportItemForm = ({ onSuccess }) => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          // Authentication: Assuming JWT is handled by cookies or a global setup.
-          // If you store the token in localStorage, uncomment the line below:
-          // 'Authorization': `Bearer ${localStorage.getItem('token')}`
+          "Authorization": `Bearer ${localStorage.getItem("access_token")}`
         },
         body: JSON.stringify(formData),
       });

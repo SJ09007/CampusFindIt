@@ -6,16 +6,14 @@ import StatsSection from "./components/StatsSection";
 import CTASection from "./components/CTASection";
 import Footer from "./components/Footer";
 
-// CRITICAL CHANGE: Accept onNavigate prop
-const LandingPage = ({ onNavigate }) => {
+const LandingPage = () => {
   return (
     <>
-      {/* Pass onNavigate to Navbar, HeroSection, and CTASection */}
-      <Navbar onNavigate={onNavigate} />
-      <HeroSection onNavigate={onNavigate} />
+      <Navbar />
+      <HeroSection />
       <HowItWorks />
       <StatsSection />
-      <CTASection onNavigate={onNavigate} />
+      <CTASection />
       <Footer />
     </>
   );

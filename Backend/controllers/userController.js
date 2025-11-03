@@ -80,12 +80,15 @@ const registerUser = async (req, res) => {
       studentId: req.body.studentId,
     });
     const user = await newUser.save();
-    await sendEmail(
-      process.env.SMTP_EMAIL,
-      req.body.email,
-      "User registered",
-      "User registered "
-    );
+
+    // Send OTP immediately after registration
+    const otpservice = require("../service/otpService");
+    try {
+      await otpservice.sendOtp(req.body.email);
+    } catch (otpError) {
+      console.error("Failed to send OTP:", otpError);
+    }
+
     res.status(200).json(user);
   } catch (err) {
     console.log(err);

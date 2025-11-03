@@ -1,14 +1,22 @@
-import React, { useState } from "react";
-// Assuming styles is correctly imported for CSS Modules
+import React, { useState, useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import styles from "./OtpPage.module.css";
 import Navbar from "../Authentication/components/Navbar";
-// Assume you have a way to get the email, e.g., from location state or a global context
-const USER_EMAIL = "example@user.com"; // REPLACE with actual email retrieval logic
 
 const API_BASE_URL = "http://localhost:3100";
 
 const OtpPage = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
   const [otp, setOtp] = useState("");
+  const userEmail = location.state?.email;
+
+  useEffect(() => {
+    // If no email is provided, redirect to signup
+    if (!userEmail) {
+      navigate("/auth");
+    }
+  }, [userEmail, navigate]);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState(
     "A 4-digit OTP has been sent to your email."
@@ -30,7 +38,7 @@ const OtpPage = () => {
       const response = await fetch(`${API_BASE_URL}/api/otp/sendotp`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: USER_EMAIL }),
+        body: JSON.stringify({ email: userEmail }),
       });
 
       if (!response.ok) {
@@ -65,7 +73,7 @@ const OtpPage = () => {
       const response = await fetch(`${API_BASE_URL}/api/otp/verifyotp`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: USER_EMAIL, otp: otp }),
+        body: JSON.stringify({ email: userEmail, otp: otp }),
       });
 
       if (!response.ok) {
@@ -73,17 +81,29 @@ const OtpPage = () => {
         throw new Error(errorText || "OTP verification failed.");
       }
 
-      // Success response (from your OTPController: { success: true, message: "OTP verified successfully" })
       const result = await response.json();
 
-      setStatus(
-        result.message || "OTP verified! Redirecting to login...",
-        false
-      );
-      setOtp(""); // Clear OTP input
+      if (result.success) {
+        setStatus("OTP verified successfully! Redirecting to login...", false);
+        setOtp(""); // Clear OTP input
 
-      // Logic to redirect to LoginPage or HomePage after successful verification
-      // Example: navigate('/login');
+        // Mark account as verified and store email
+        localStorage.setItem("isVerified", "true");
+        localStorage.setItem("user_email", userEmail);
+
+        // Navigate to login with verification success message
+        setTimeout(() => {
+          navigate("/auth", {
+            state: {
+              email: userEmail,
+              verified: true,
+              initialView: "login", // Ensure we show login form
+            },
+          });
+        }, 1500);
+      } else {
+        setStatus(result.message || "Verification failed", true);
+      }
     } catch (err) {
       console.error("Verify OTP Error:", err.message);
       setStatus(`Verification failed. ${err.message}`, true);

@@ -1,9 +1,10 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import styles from "../styles/SignupForm.module.css";
 import PasswordInput from "./PasswordInput";
 
-// Component must now accept onSignupSuccess as a prop
-const SignupForm = ({ onSignupSuccess, onToggleForm }) => {
+const SignupForm = ({ onToggleForm }) => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     fullname: "",
     username: "",
@@ -46,9 +47,10 @@ const SignupForm = ({ onSignupSuccess, onToggleForm }) => {
         throw new Error(data.message || data.error || "Registration failed.");
       }
 
-      if (onSignupSuccess) {
-        onSignupSuccess(data);
-      }
+      // Navigate to OTP page with email
+      navigate("/otp", {
+        state: { email: formData.email },
+      });
     } catch (err) {
       console.error("Signup Error:", err);
       setError(err.message || "An unexpected error occurred during signup.");
@@ -141,6 +143,10 @@ const SignupForm = ({ onSignupSuccess, onToggleForm }) => {
       <button type="submit" className={styles.submitBtn} disabled={loading}>
         {loading ? "Registering..." : "Sign Up"}
       </button>
+
+      <p className={styles.toggleForm}>
+        Already have an account? <span onClick={onToggleForm}>Login</span>
+      </p>
     </form>
   );
 };

@@ -42,3 +42,21 @@ h2 {
   color: #666;
   cursor: pointer;
 }
+
+.toggleForm {
+  text-align: center;
+  font-size: 0.9rem;
+  color: #666;
+  margin-top: 1rem;
+}
+
+.toggleForm span {
+  color: #4facfe;
+  font-weight: 500;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.toggleForm span:hover {
+  color: #00c6ff;
+}

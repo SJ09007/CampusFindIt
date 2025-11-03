@@ -9,7 +9,7 @@ const itemRoute = require("./routes/itemsRoute");
 const claimRoute = require("./routes/claimsRoute");
 
 const cookieParser = require("cookie-parser");
-const { connectRedis } = require("./config/redisconn");
+const {connectRedis}  = require("./config/redisconn");
 
 dotenv.config();
 const PORT = process.env.PORT || 3000;
@@ -25,16 +25,17 @@ app.use("/api/otp", otpRoute);
 app.use("/api/items", itemRoute);
 app.use("/api/claims", claimRoute);
 
-connectDB()
-  .then(() => {
+connectDB().then(() => {
     console.log("Connected to MongoDB");
     connectRedis().then(() => {
-      console.log("Connected to Redis");
-      app.listen(PORT, () => {
-        console.log(`Server is running on port ${PORT}`);
-      });
+        console.log("Connected to Redis");
+        app.listen(PORT, () => {
+            console.log(`Server is running on port ${PORT}`);
     });
-  })
-  .catch((err) => {
+    })
+    
+}).catch((err) => {
     console.log(err);
-  });
+})
+
+
