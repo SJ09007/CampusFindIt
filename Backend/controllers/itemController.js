@@ -1,135 +1,238 @@
+// Backend/controllers/itemController.js
 const Item = require("../models/itemsModel");
 const ClaimedItem = require("../models/ClaimsModels");
 const cloudinary = require("../config/cloudinaryConfig");
+const streamifier = require("streamifier");
 
+/**
+ * Create Item — handles both lost & found items.
+ * Found items require at least one image (uploads to Cloudinary).
+ */
 const createItem = async (req, res) => {
   try {
-    // console.log("req.user:", req);
+    const { title, description, category, status, location, date } = req.body;
 
-    if (
-      !req.body.title ||
-      !req.body.description ||
-      !req.body.category ||
-      !req.body.status ||
-      !req.body.location ||
-      !req.body.date
-    ) {
-      return res.status(400).json("All fields are required");
+    // Validate fields
+    if (!title || !description || !category || !status || !location) {
+      return res
+        .status(400)
+        .json({ message: "All required fields are missing" });
     }
-    // postedby by logged in user
+
+    // Ensure user is authenticated
     if (!req.user) {
       return res
         .status(401)
         .json({ error: "Unauthorized. No user found in request." });
     }
 
-    current_user = req.user.id;
-    req.body.postedBy = current_user;
+    const files = req.files || [];
 
-    const item = await Item.create(req.body);
-    res.status(201).json(item);
+    // Enforce image upload for found items
+    if (status === "found" && files.length === 0) {
+      return res.status(400).json({
+        message: "At least one image is required for reporting a found item",
+      });
+    }
+
+    // Upload files to Cloudinary (if any)
+    const uploadedUrls = [];
+    for (const file of files) {
+      const uploaded = await new Promise((resolve, reject) => {
+        const uploadStream = cloudinary.uploader.upload_stream(
+          {
+            folder: "lostfound",
+            resource_type: "image",
+            transformation: [{ quality: "auto" }, { fetch_format: "auto" }],
+          },
+          (error, result) => {
+            if (error) return reject(error);
+            resolve(result);
+          }
+        );
+        streamifier.createReadStream(file.buffer).pipe(uploadStream);
+      }).catch((err) => {
+        console.error("Cloudinary upload error:", err);
+        throw err;
+      });
+
+      if (uploaded && uploaded.secure_url)
+        uploadedUrls.push(uploaded.secure_url);
+    }
+
+    // Create new item
+    const item = new Item({
+      title,
+      description,
+      category,
+      status,
+      location,
+      date: date ? new Date(date) : new Date(),
+      postedBy: req.user.id,
+      images: uploadedUrls,
+    });
+
+    await item.save();
+    return res.status(201).json(item);
   } catch (err) {
-    res.status(500).json(err);
+    console.error("createItem error:", err);
+    return res.status(500).json({ message: err.message || "Server error" });
   }
 };
 
+/**
+ * Get all items
+ */
 const getAllItems = async (req, res) => {
   try {
-    const items = await Item.find({});
+    const items = await Item.find({}).sort({ createdAt: -1 }).lean();
     res.status(200).json(items);
   } catch (err) {
-    res.status(500).json(err);
+    console.error("getAllItems error:", err);
+    res.status(500).json({ message: err.message });
   }
 };
 
+/**
+ * Get found items
+ */
 const getFoundItems = async (req, res) => {
   try {
-    const items = await Item.find({ status: "found" });
+    const items = await Item.find({ status: "found" })
+      .sort({ createdAt: -1 })
+      .lean();
     res.status(200).json(items);
   } catch (err) {
-    res.status(500).json(err);
+    console.error("getFoundItems error:", err);
+    res.status(500).json({ message: err.message });
   }
 };
 
+/**
+ * Get lost items
+ */
 const getLostItems = async (req, res) => {
   try {
-    const items = await Item.find({ status: "lost" });
+    const items = await Item.find({ status: "lost" })
+      .sort({ createdAt: -1 })
+      .lean();
     res.status(200).json(items);
   } catch (err) {
-    res.status(500).json(err);
+    console.error("getLostItems error:", err);
+    res.status(500).json({ message: err.message });
   }
 };
 
+/**
+ * Get all items posted by the logged-in user
+ */
 const getMyItemsPosted = async (req, res) => {
   try {
-    const items = await Item.find({ postedby: req.user._id });
+    if (!req.user) return res.status(401).json({ message: "Unauthorized" });
+    const items = await Item.find({ postedBy: req.user.id })
+      .sort({ createdAt: -1 })
+      .lean();
     res.status(200).json(items);
   } catch (err) {
-    res.status(500).json(err);
+    console.error("getMyItemsPosted error:", err);
+    res.status(500).json({ message: err.message });
   }
 };
 
+/**
+ * Get only 'found' items posted by logged-in user
+ */
 const getMyPostedItemsFound = async (req, res) => {
   try {
-    const items = await Item.find({ postedby: req.user._id, status: "found" });
+    if (!req.user) return res.status(401).json({ message: "Unauthorized" });
+    const items = await Item.find({ postedBy: req.user.id, status: "found" })
+      .sort({ createdAt: -1 })
+      .lean();
     res.status(200).json(items);
   } catch (err) {
-    res.status(500).json(err);
+    console.error("getMyPostedItemsFound error:", err);
+    res.status(500).json({ message: err.message });
   }
 };
 
+/**
+ * Get only 'lost' items posted by logged-in user
+ */
 const getMyPostedItemsLost = async (req, res) => {
   try {
-    const items = await Item.find({ postedby: req.user._id, status: "lost" });
+    if (!req.user) return res.status(401).json({ message: "Unauthorized" });
+    const items = await Item.find({ postedBy: req.user.id, status: "lost" })
+      .sort({ createdAt: -1 })
+      .lean();
     res.status(200).json(items);
   } catch (err) {
-    res.status(500).json(err);
+    console.error("getMyPostedItemsLost error:", err);
+    res.status(500).json({ message: err.message });
   }
 };
 
+/**
+ * Get items posted on a specific date
+ */
 const getItemsPostedOnDate = async (req, res) => {
   try {
-    const items = await Item.find({ date: req.params.date });
+    const dateParam = req.params.date;
+    // parse dateParam safely (expects YYYY-MM-DD)
+    const start = new Date(dateParam);
+    const end = new Date(dateParam);
+    end.setDate(end.getDate() + 1);
+
+    const items = await Item.find({ date: { $gte: start, $lt: end } })
+      .sort({ createdAt: -1 })
+      .lean();
     res.status(200).json(items);
   } catch (err) {
-    res.status(500).json(err);
+    console.error("getItemsPostedOnDate error:", err);
+    res.status(500).json({ message: err.message });
   }
 };
 
+/**
+ * Update item status — called when item is claimed/reported.
+ */
 const update_status = async (req, res) => {
   try {
     const item = await Item.findById(req.params.id);
     if (!item) {
-      return res.status(404).json("Item not found");
+      return res.status(404).json({ message: "Item not found" });
     }
 
-    if (item.status == "claimed" || item.status == "reported") {
-      return res.status(400).json("Item has already been claimed");
+    if (["claimed", "reported"].includes(item.status)) {
+      return res
+        .status(400)
+        .json({ message: "Item has already been claimed/reported" });
     }
 
-    if (item.postedBy._id.toString() != req.user.id) {
-      return res.status(400).json("You can only update your items");
+    if (!req.user) return res.status(401).json({ message: "Unauthorized" });
+
+    if (item.postedBy.toString() !== req.user.id) {
+      return res
+        .status(403)
+        .json({ message: "You can only update your own items" });
     }
-    // find all persons who have claimed the item
-    const claims = await ClaimedItem.find({ item: req.params.id });
-    console.log(item.postedBy._id.toString());
-    console.log(req.user.id);
-    const userIdStr = req.user.id; // or req.body.userid if you're using that
 
-    console.log(item.status);
+    // find all persons who have claimed the item (if needed later)
+    // const claims = await ClaimedItem.find({ item: req.params.id });
 
-    if (item.status == "lost") {
+    // Handle status change
+    if (item.status === "lost") {
       item.status = "reported";
-      item.claimedBy = req.body.userid;
-    } else if (item.status == "found") {
+      item.claimedBy = req.body.userid || item.claimedBy;
+    } else if (item.status === "found") {
       item.status = "claimed";
-      item.claimedBy = req.body.userid;
+      item.claimedBy = req.body.userid || item.claimedBy;
     }
-    console.log(item.status);
+
     await item.save();
-    res.status(200).json("Item status has been updated");
+    res.status(200).json({ message: "Item status has been updated" });
   } catch (err) {
-    res.status(500).json(err);
+    console.error("update_status error:", err);
+    res.status(500).json({ message: err.message });
   }
 };
 

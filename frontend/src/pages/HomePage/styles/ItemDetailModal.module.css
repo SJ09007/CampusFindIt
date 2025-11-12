@@ -1,165 +1,151 @@
-hello.modalOverlay {
+/* ItemDetailModal.module.css */
+
+.modalOverlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.6);
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000;
+  z-index: 2000;
+  padding: 20px;
 }
 
-.modalContent {
-  background: white;
-  padding: 2rem;
+.modal {
+  background: #fff;
   border-radius: 10px;
-  width: 90%;
-  max-width: 600px;
-  position: relative;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-  max-height: 80vh;
+  max-width: 950px;
+  width: 100%;
+  max-height: 90vh;
   overflow-y: auto;
+  position: relative;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  animation: fadeIn 0.2s ease-in-out;
 }
 
-.closeButton {
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.closeBtn {
   position: absolute;
-  top: 15px;
-  right: 15px;
-  background: none;
+  top: 10px;
+  right: 12px;
+  background: transparent;
   border: none;
-  font-size: 1.5rem;
+  font-size: 1.4rem;
   cursor: pointer;
-  color: #333;
+  color: #444;
+  transition: color 0.2s ease;
 }
 
-.title {
-  font-size: 2rem;
-  margin-bottom: 0.5rem;
-  color: #2c3e50;
+.closeBtn:hover {
+  color: #000;
+}
+
+.content {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  padding: 24px;
+}
+
+.left {
+  flex: 1.1;
+  min-width: 300px;
+}
+
+.mainImage {
+  width: 100%;
+  height: 400px;
+  object-fit: cover;
+  border-radius: 8px;
+  background-color: #f5f5f5;
+  border: 1px solid #eee;
+}
+
+.gallery {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.thumb {
+  width: 100px;
+  height: 70px;
+  object-fit: cover;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.thumb:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.25);
+}
+
+.right {
+  flex: 1;
+  min-width: 280px;
+  display: flex;
+  flex-direction: column;
 }
 
 .statusPill {
   display: inline-block;
-  padding: 4px 10px;
-  border-radius: 50px;
-  font-size: 0.75rem;
-  font-weight: bold;
-  margin-bottom: 1.5rem;
-}
-
-.statusLost {
-  background-color: #fce4ec; /* Light Red */
-  color: #c2185b; /* Dark Pink */
-}
-
-.statusFound {
-  background-color: #e8f5e9; /* Light Green */
-  color: #388e3c; /* Dark Green */
-}
-
-.detailGrid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-  padding: 1rem 0;
-  border-top: 1px solid #eee;
-  border-bottom: 1px solid #eee;
-}
-
-.description {
-  font-size: 1rem;
-  line-height: 1.5;
-  margin-bottom: 2rem;
-}
-
-.actionArea {
-  text-align: center;
-}
-
-.claimButton {
-  padding: 0.75rem 2rem;
-  font-size: 1.1rem;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
-
-.claimButton:hover:not([disabled]) {
-  background-color: #0056b3;
-}
-
-.claimButton:disabled {
-  background-color: #ccc;
-  cursor: not-allowed;
-}
-
-.claimedButton,
-.posterButton {
-  padding: 0.75rem 2rem;
-  font-size: 1.1rem;
-  background-color: #f0f0f0;
-  color: #666;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  cursor: not-allowed;
-}
-
-.errorText {
-  color: #c2185b;
-  margin-top: 1rem;
-  font-weight: 500;
-}
-
-.successText {
-  color: #388e3c;
-  margin-top: 1rem;
-  font-weight: 500;
-}
-
-.claimSection {
-  margin-top: 1.5rem;
-  padding: 1.5rem;
-  border: 1px dashed #ccc;
-  border-radius: 8px;
-}
-
-.claimHeader {
-  font-size: 1.2rem;
-  color: #007bff;
-  margin-bottom: 1rem;
-  border-bottom: 2px solid #eee;
-  padding-bottom: 0.5rem;
-}
-
-.claimEntry {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.75rem 0;
-  border-bottom: 1px solid #f0f0f0;
-}
-
-.claimEntry:last-child {
-  border-bottom: none;
-}
-
-.reuniteButton {
-  padding: 0.5rem 1rem;
   font-size: 0.9rem;
-  background-color: #4caf50; /* Green */
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background-color 0.3s;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 999px;
+  margin-bottom: 6px;
+  text-transform: uppercase;
 }
 
-.reuniteButton:hover:not([disabled]) {
-  background-color: #43a047;
+.primary {
+  background-color: #2563eb;
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background 0.2s ease;
+}
+
+.primary:hover {
+  background-color: #1e4fd0;
+}
+
+.primary:disabled {
+  background: #9db5ef;
+  cursor: not-allowed;
+}
+
+.right h2 {
+  margin-top: 0;
+  margin-bottom: 8px;
+  font-size: 1.5rem;
+}
+
+.right p {
+  line-height: 1.5;
+  margin: 6px 0;
+}
+
+@media (max-width: 768px) {
+  .content {
+    flex-direction: column;
+  }
+
+  .mainImage {
+    height: 300px;
+  }
 }
