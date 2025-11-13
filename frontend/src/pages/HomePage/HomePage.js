@@ -1,11 +1,12 @@
-// HomePage.js
+// src/pages/HomePage/HomePage.js
 import React, { useEffect, useState } from "react";
 import styles from "./styles/HomePage.module.css";
-import Navbar from "./components/HomeNavbar";
+import HomeNavbar from "./components/HomeNavbar";
 import ReportItemForm from "./components/ReportItemForm";
 import ItemDetailModal from "./components/ItemDetailModal";
 
-const API_BASE_URL = process.env.REACT_APP_API_BASE || "http://localhost:3100";
+const API_BASE_URL =
+  process.env.REACT_APP_API_URL || "http://localhost:3100/api";
 
 const HomePage = ({ onLogout }) => {
   const [items, setItems] = useState([]);
@@ -18,7 +19,9 @@ const HomePage = ({ onLogout }) => {
     setLoading(true);
     setError("");
     try {
-      const res = await fetch(`${API_BASE_URL}/api/items/getall`);
+      const res = await fetch(`${API_BASE_URL}/items/getall`, {
+        credentials: "include", // not required for public but safe & consistent
+      });
       const data = await res.json();
       if (!res.ok) throw new Error(data?.message || "Failed to fetch items");
       setItems(data);
@@ -52,7 +55,7 @@ const HomePage = ({ onLogout }) => {
 
   return (
     <div className={styles.pageContainer}>
-      <Navbar onNavigate={setCurrentView} onLogout={onLogout} />
+      <HomeNavbar onNavigate={setCurrentView} onLogout={onLogout} />
 
       {currentView === "list" && (
         <>
@@ -135,7 +138,6 @@ const ItemCard = ({ item, onClick }) => {
 
   if (rawUrl) {
     if (rawUrl.includes("/upload/")) {
-      // Cloudinary transform for thumbnail
       thumbnail = rawUrl.replace(
         "/upload/",
         "/upload/w_400,h_260,c_fill,q_auto,f_auto/"
@@ -143,10 +145,10 @@ const ItemCard = ({ item, onClick }) => {
     } else if (rawUrl.startsWith("http")) {
       thumbnail = rawUrl;
     } else {
-      // local path fallback
-      thumbnail = `${
-        process.env.REACT_APP_API_BASE || "http://localhost:3100"
-      }${rawUrl}`;
+      const base = (
+        process.env.REACT_APP_API_URL || "http://localhost:3100/api"
+      ).replace(/\/api$/, "");
+      thumbnail = `${base}${rawUrl}`;
     }
   }
 
@@ -162,6 +164,11 @@ const ItemCard = ({ item, onClick }) => {
     <div
       className={styles.card}
       onClick={() => onClick(item)}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") onClick(item);
+      }}
       style={{
         borderLeft:
           item.status === "lost" ? "4px solid #e53e3e" : "4px solid #38a169",

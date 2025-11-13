@@ -128,11 +128,17 @@ const login = async (req, res) => {
     const { password, ...others } = user._doc;
     res
       .status(200)
+      // .cookie("access_token", token, {
+      // httpOnly: true,
+      // sameSite: "none",
+      // secure: true,
+      // })
       .cookie("access_token", token, {
         httpOnly: true,
-        sameSite: "none",
-        secure: true,
+        sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+        secure: process.env.NODE_ENV === "production" ? true : false,
       })
+
       .json({ ...others, token });
     console.timeEnd("login_total");
   } catch (err) {

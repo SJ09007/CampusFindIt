@@ -8,7 +8,17 @@ const ReportItemForm = ({ onSuccess }) => {
   const [formData, setFormData] = useState({
     title: "",
     description: "",
-    category: "Electronics",
+    category: [
+      { label: "keys", value: "keys" },
+      { label: "laptop", value: "laptop" },
+      { label: "phone", value: "phone" },
+      { label: "earphones", value: "earphones" },
+      { label: "mobile", value: "mobile" },
+      { label: "tablet", value: "tablet" },
+      { label: "camera", value: "camera" },
+      { label: "accessories", value: "accessories" }, // if backend uses 'Accessories' or 'accessories' - match it
+      { label: "other", value: "other" },
+    ][0].value,
     status: "lost",
     location: "",
     date: new Date().toISOString().slice(0, 10),
@@ -37,13 +47,11 @@ const ReportItemForm = ({ onSuccess }) => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((p) => ({ ...p, [name]: value }));
-    // clear messages when user types
     setMessage({ type: "", text: "" });
   };
 
   const handleFileChange = (e) => {
     const files = Array.from(e.target.files || []);
-    // optional: limit the number of images to 5
     const sliced = files.slice(0, 5);
     setImageFiles(sliced);
     setMessage({ type: "", text: "" });
@@ -55,7 +63,6 @@ const ReportItemForm = ({ onSuccess }) => {
     if (!formData.category) return "Category is required";
     if (!formData.status) return "Status is required";
     if (!formData.location.trim()) return "Location is required";
-    // When reporting a found item, require at least one image
     if (formData.status === "found" && imageFiles.length === 0) {
       return "Please upload at least one image for found items.";
     }
@@ -78,7 +85,7 @@ const ReportItemForm = ({ onSuccess }) => {
       const fd = new FormData();
       fd.append("title", formData.title);
       fd.append("description", formData.description);
-      fd.append("category", formData.category);
+      fd.append("category", formData.category); // backend value
       fd.append("status", formData.status);
       fd.append("location", formData.location);
       fd.append("date", formData.date);
@@ -94,24 +101,51 @@ const ReportItemForm = ({ onSuccess }) => {
         headers,
       });
 
-      const json = await res.json();
+      // try to parse JSON response (server may send JSON even on error)
+      let json;
+      try {
+        json = await res.json();
+      } catch (err) {
+        json = null;
+      }
+
+      if (res.status === 401) {
+        // Not authenticated -> redirect to login
+        setMessage({
+          type: "error",
+          text: "You must be logged in to report items. Redirecting to login...",
+        });
+        setTimeout(() => (window.location.href = "/auth"), 900);
+        return;
+      }
+
       if (!res.ok) {
+        // Prefer server-sent error message
         const errMsg =
-          json?.message || json?.error || "Failed to submit report";
+          (json && (json.message || json.error)) ||
+          "Failed to submit report (server error)";
         throw new Error(errMsg);
       }
 
+      // Success: show message and reset
       setMessage({ type: "success", text: "Report submitted successfully." });
-      // reset form
       setFormData({
         title: "",
         description: "",
-        category: "Electronics",
+        category: [
+          { label: "keys", value: "keys" },
+          { label: "Electronics", value: "electronics" },
+          { label: "ID Cards / Documents", value: "id_cards" },
+          { label: "Clothing / Apparel", value: "apparel" },
+          { label: "accessories", value: "accessories" }, // if backend uses 'Accessories' or 'accessories' - match it
+          { label: "other", value: "other" },
+        ][0].value,
         status: "lost",
         location: "",
         date: new Date().toISOString().slice(0, 10),
       });
       setImageFiles([]);
+      // Let parent (HomePage) refresh list
       if (onSuccess) onSuccess();
     } catch (err) {
       console.error("Report submit error:", err);
@@ -175,6 +209,7 @@ const ReportItemForm = ({ onSuccess }) => {
             value={formData.title}
             onChange={handleChange}
             placeholder="Brief title (e.g., Black Wallet)"
+            required
           />
         </div>
 
@@ -186,6 +221,7 @@ const ReportItemForm = ({ onSuccess }) => {
             value={formData.description}
             onChange={handleChange}
             placeholder="Describe the item, distinctive marks, etc."
+            required
           />
         </div>
 
@@ -196,12 +232,20 @@ const ReportItemForm = ({ onSuccess }) => {
             name="category"
             value={formData.category}
             onChange={handleChange}
+            required
           >
-            <option value="Electronics">Electronics</option>
-            <option value="ID_Cards">ID Cards / Documents</option>
-            <option value="Apparel">Clothing / Apparel</option>
-            <option value="Accessories">Accessories</option>
-            <option value="Other">Other</option>
+            {[
+              { label: "keys", value: "keys" },
+              { label: "Electronics", value: "electronics" },
+              { label: "ID Cards / Documents", value: "id_cards" },
+              { label: "Clothing / Apparel", value: "apparel" },
+              { label: "accessories", value: "accessories" }, // if backend uses 'Accessories' or 'accessories' - match it
+              { label: "other", value: "other" },
+            ].map((opt) => (
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
+              </option>
+            ))}
           </select>
         </div>
 
@@ -213,6 +257,7 @@ const ReportItemForm = ({ onSuccess }) => {
             value={formData.location}
             onChange={handleChange}
             placeholder="Where it was lost/found"
+            required
           />
         </div>
 
@@ -256,7 +301,6 @@ const ReportItemForm = ({ onSuccess }) => {
                   type="button"
                   className={styles.removeBtn}
                   onClick={() => {
-                    // remove selected file
                     const newFiles = imageFiles.filter((_, idx) => idx !== i);
                     setImageFiles(newFiles);
                   }}
