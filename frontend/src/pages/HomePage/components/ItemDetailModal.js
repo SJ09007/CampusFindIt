@@ -6,9 +6,87 @@ const API_BASE_URL =
   process.env.REACT_APP_API_URL || "http://localhost:3100/api";
 
 const ItemDetailModal = ({ item = {}, onClose = () => {}, onClaimSuccess }) => {
+  // Simulate current user (replace with actual user context in real app)
+  const currentUser = localStorage.getItem("username") || "";
+  const isOwner = item?.postedBy === currentUser;
   const [claiming, setClaiming] = useState(false);
+  const [showDeclaration, setShowDeclaration] = useState(false);
+  const [declarationAgreed, setDeclarationAgreed] = useState(false);
+  const [showDescription, setShowDescription] = useState(false);
+  const [description, setDescription] = useState("");
+  const [descError, setDescError] = useState("");
   const [statusMessage, setStatusMessage] = useState(""); // info / error messages
   const [statusError, setStatusError] = useState(false);
+  // Lost item found flow
+  const [showFoundDeclaration, setShowFoundDeclaration] = useState(false);
+  const [foundDeclarationAgreed, setFoundDeclarationAgreed] = useState(false);
+  const [showFoundForm, setShowFoundForm] = useState(false);
+  const [foundDetails, setFoundDetails] = useState({ whenWhere: "", extra: "" });
+  const [foundError, setFoundError] = useState("");
+    // Step 1: Show found declaration
+    const handleFoundClick = () => {
+      setShowFoundDeclaration(true);
+      setStatusMessage("");
+      setStatusError(false);
+    };
+
+    // Step 2: Agree to found declaration
+    const handleFoundAgree = () => {
+      if (!foundDeclarationAgreed) return;
+      setShowFoundDeclaration(false);
+      setShowFoundForm(true);
+      setFoundError("");
+    };
+
+    // Step 3: Submit found report
+    const handleSendToOwner = async () => {
+      setStatusMessage("");
+      setStatusError(false);
+      setFoundError("");
+      if (!foundDetails.whenWhere.trim()) {
+        setFoundError("Please specify when and where you found the item.");
+        return;
+      }
+      const maybeToken = localStorage.getItem("access_token");
+      if (!maybeToken) {
+        setStatusError(true);
+        setStatusMessage("You must be logged in to report a found item.");
+        return;
+      }
+      setClaiming(true);
+      setStatusMessage("Submitting found report...");
+      setStatusError(false);
+      try {
+        // Hardcoded API, backend should handle this
+        const res = await fetch(`${API_BASE_URL}/claims/reportfound/${item._id}`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify({
+            whenWhere: foundDetails.whenWhere,
+            extra: foundDetails.extra,
+          }),
+        });
+        const payload = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          const errMsg = payload?.message || payload?.error || "Report failed";
+          throw new Error(errMsg);
+        }
+        setStatusMessage("Report sent to owner successfully.");
+        setStatusError(false);
+        setTimeout(() => {
+          onClose();
+        }, 700);
+      } catch (err) {
+        setStatusError(true);
+        setStatusMessage(err.message || "Report failed.");
+      } finally {
+        setClaiming(false);
+        setShowFoundForm(false);
+      }
+    };
   const [mainImage, setMainImage] = useState(
     (item.images && item.images.length && item.images[0]) || "/placeholder.png"
   );
@@ -29,65 +107,68 @@ const ItemDetailModal = ({ item = {}, onClose = () => {}, onClaimSuccess }) => {
   };
 
   // Claim handler — uses credentials (cookie-based auth)
-  const handleClaim = async () => {
+  // Step 1: Show declaration
+  const handleClaimClick = () => {
+    setShowDeclaration(true);
     setStatusMessage("");
     setStatusError(false);
+  };
 
-    // If your app uses cookie auth (recommended), don't rely on localStorage token
-    // check for login UI or let server reject with 401 and handle it gracefully.
+  // Step 2: Agree to declaration
+  const handleAgree = () => {
+    if (!declarationAgreed) return;
+    setShowDeclaration(false);
+    setShowDescription(true);
+    setDescError("");
+  };
+
+  // Step 3: Submit claim with description
+  const handleSendToFinder = async () => {
+    setStatusMessage("");
+    setStatusError(false);
+    setDescError("");
+    if (!description.trim() || description.length > 200) {
+      setDescError("Please describe the item (max 200 words).");
+      return;
+    }
     const maybeToken = localStorage.getItem("access_token");
     if (!maybeToken) {
-      // If you prefer to require token in localStorage, keep this check.
-      // But note: backend auth checks cookie (httpOnly). You should instead open login flow.
       setStatusError(true);
       setStatusMessage("You must be logged in to claim an item.");
       return;
     }
-
-    if (!window.confirm("Are you sure you want to claim this item?")) return;
-
     setClaiming(true);
     setStatusMessage("Submitting claim...");
     setStatusError(false);
-
     try {
-      // NOTE: backend route is /api/claims/addclaim/:id
+      // Hardcoded API, backend should handle this
       const res = await fetch(`${API_BASE_URL}/claims/addclaim/${item._id}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          // Do NOT send Authorization header if backend uses cookie-based auth.
-          // If your backend also accepts Bearer token, you can include it here.
         },
-        credentials: "include", // important — sends httpOnly cookie
-        body: JSON.stringify({ message: "I want to claim this item" }),
+        credentials: "include",
+        body: JSON.stringify({
+          message: description,
+        }),
       });
-
       const payload = await res.json().catch(() => ({}));
-
       if (!res.ok) {
-        const errMsg =
-          payload?.message ||
-          payload?.error ||
-          payload?.message ||
-          "Claim failed";
+        const errMsg = payload?.message || payload?.error || "Claim failed";
         throw new Error(errMsg);
       }
-
       setStatusMessage("Claim submitted successfully.");
       setStatusError(false);
-
       if (onClaimSuccess) onClaimSuccess();
-      // Optionally close the modal after short delay so user sees message
       setTimeout(() => {
         onClose();
       }, 700);
     } catch (err) {
-      console.error("Claim error:", err);
       setStatusError(true);
       setStatusMessage(err.message || "Claim failed.");
     } finally {
       setClaiming(false);
+      setShowDescription(false);
     }
   };
 
@@ -204,17 +285,152 @@ const ItemDetailModal = ({ item = {}, onClose = () => {}, onClaimSuccess }) => {
 
             <div style={{ marginTop: 18 }}>
               {item.status === "found" ? (
-                <button
-                  className={styles.primary}
-                  onClick={handleClaim}
-                  disabled={claiming}
-                >
-                  {claiming ? "Submitting..." : "Claim this item"}
-                </button>
+                <>
+                  {!showDeclaration && !showDescription && !isOwner && (
+                    <button
+                      className={styles.primary}
+                      onClick={handleClaimClick}
+                      disabled={claiming}
+                    >
+                      Claim this item
+                    </button>
+                  )}
+                  {showDeclaration && (
+                    <div style={{ background: "#f9f9f9", padding: 16, borderRadius: 8, marginBottom: 12 }}>
+                      <h3>Declaration for Claiming a Lost Item</h3>
+                      <p style={{ fontSize: "0.97em", marginBottom: 8 }}>
+                        <strong>Declaration of Ownership and Responsibility</strong><br />
+                        I hereby declare that I am the rightful owner of the item I am claiming through the Lost and Found Portal. I affirm that all information provided by me regarding the identity, description, and loss of this item is true, accurate, and complete to the best of my knowledge.<br /><br />
+                        I fully understand that submitting false, misleading, or incomplete information is a serious offense. I accept complete responsibility for the authenticity of my claim and acknowledge that if any part of my statement is found to be incorrect, fabricated, or intentionally deceptive, strict disciplinary or legal action may be taken against me as per the applicable rules, regulations, and laws.<br /><br />
+                        By submitting this declaration, I confirm my willingness to comply with all verification processes and agree that the authorities may revoke the item or take necessary action if discrepancies are discovered at any stage.
+                      </p>
+                      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                        <input
+                          type="checkbox"
+                          id="declarationAgree"
+                          checked={declarationAgreed}
+                          onChange={e => setDeclarationAgreed(e.target.checked)}
+                        />
+                        <label htmlFor="declarationAgree">I have read and agree to the above declaration.</label>
+                      </div>
+                      <div style={{ marginTop: 12, display: "flex", gap: 12 }}>
+                        <button
+                          className={styles.primary}
+                          onClick={handleAgree}
+                          disabled={!declarationAgreed}
+                        >
+                          I agree
+                        </button>
+                        <button
+                          className={styles.secondary}
+                          onClick={() => { setShowDeclaration(false); setDeclarationAgreed(false); }}
+                        >
+                          I do not agree
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                  {showDescription && (
+                    <div style={{ background: "#f9f9f9", padding: 16, borderRadius: 8 }}>
+                      <h3>Tell something about the item to prove it belongs to you:</h3>
+                      <textarea
+                        style={{ width: "100%", minHeight: 80, marginTop: 8, resize: "vertical" }}
+                        maxLength={200}
+                        value={description}
+                        onChange={e => setDescription(e.target.value)}
+                        placeholder="Describe the item (max 200 words)"
+                      />
+                      <div style={{ color: "#b91c1c", fontSize: "0.95em", marginTop: 4 }}>{descError}</div>
+                      <button
+                        className={styles.primary}
+                        style={{ marginTop: 10 }}
+                        onClick={handleSendToFinder}
+                        disabled={claiming}
+                      >
+                        {claiming ? "Sending..." : "Send to Finder"}
+                      </button>
+                    </div>
+                  )}
+                </>
+              ) : item.status === "lost" ? (
+                <>
+                  {!showFoundDeclaration && !showFoundForm && !isOwner && (
+                    <button
+                      className={styles.primary}
+                      onClick={handleFoundClick}
+                      disabled={claiming}
+                    >
+                      Found this item
+                    </button>
+                  )}
+                  {showFoundDeclaration && (
+                    <div style={{ background: "#f9f9f9", padding: 16, borderRadius: 8, marginBottom: 12 }}>
+                      <h3>Declaration of Reporting a Found Property</h3>
+                      <p style={{ fontSize: "0.97em", marginBottom: 8 }}>
+                        I hereby declare that the item I am submitting to the Lost and Found Portal was found by me at the stated location and under the circumstances I have described. I confirm that I am not making any false claims and that the item does not belong to me in any manner.<br /><br />
+                        I affirm that all information provided by me is true, accurate, and complete to the best of my knowledge. I understand that providing incorrect or misleading details is a serious violation, and I accept full responsibility for the truthfulness of my report.<br /><br />
+                        I acknowledge that if any part of my submission is later found to be untrue or intentionally falsified, strict disciplinary or legal action may be taken against me as per the applicable rules and laws. I agree to cooperate with any verification or follow-up that may be required by the authorities.
+                      </p>
+                      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                        <input
+                          type="checkbox"
+                          id="foundDeclarationAgree"
+                          checked={foundDeclarationAgreed}
+                          onChange={e => setFoundDeclarationAgreed(e.target.checked)}
+                        />
+                        <label htmlFor="foundDeclarationAgree">I have read and agree to the above declaration.</label>
+                      </div>
+                      <div style={{ marginTop: 12, display: "flex", gap: 12 }}>
+                        <button
+                          className={styles.primary}
+                          onClick={handleFoundAgree}
+                          disabled={!foundDeclarationAgreed}
+                        >
+                          I agree
+                        </button>
+                        <button
+                          className={styles.secondary}
+                          onClick={() => { setShowFoundDeclaration(false); setFoundDeclarationAgreed(false); }}
+                        >
+                          I do not agree
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                  {showFoundForm && (
+                    <div style={{ background: "#f9f9f9", padding: 16, borderRadius: 8 }}>
+                      <h3>Report Found Item</h3>
+                      <label style={{ fontWeight: 500 }}>When and where did you find this item?</label>
+                      <input
+                        style={{ width: "100%", marginTop: 8, marginBottom: 8, padding: 6 }}
+                        type="text"
+                        value={foundDetails.whenWhere}
+                        onChange={e => setFoundDetails({ ...foundDetails, whenWhere: e.target.value })}
+                        placeholder="E.g., Found near library on Nov 10th"
+                      />
+                      <label style={{ fontWeight: 500 }}>Anything else to tell about the item?</label>
+                      <textarea
+                        style={{ width: "100%", minHeight: 60, marginTop: 8, resize: "vertical" }}
+                        maxLength={200}
+                        value={foundDetails.extra}
+                        onChange={e => setFoundDetails({ ...foundDetails, extra: e.target.value })}
+                        placeholder="Additional details (optional)"
+                      />
+                      <div style={{ color: "#b91c1c", fontSize: "0.95em", marginTop: 4 }}>{foundError}</div>
+                      <button
+                        className={styles.primary}
+                        style={{ marginTop: 10 }}
+                        onClick={handleSendToOwner}
+                        disabled={claiming}
+                      >
+                        {claiming ? "Sending..." : "Send to Owner"}
+                      </button>
+                    </div>
+                  )}
+                </>
               ) : (
                 <div style={{ color: "#666" }}>
-                  If this is your item, mark it as reunited from your posted
-                  items.
+                  If this is your item, mark it as reunited from your posted items.
                 </div>
               )}
             </div>

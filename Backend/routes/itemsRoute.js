@@ -14,6 +14,9 @@ const {
   getMyPostedItemsLost,
   getItemsPostedOnDate,
   update_status,
+  claimFoundItem,
+  reportLostItem,
+  approveClaimOrReport,
 } = require("../controllers/itemController");
 
 /**
@@ -51,5 +54,20 @@ router.get("/getondate/:date", getItemsPostedOnDate);
  * Update status (protected)
  */
 router.put("/updatestatus/:id", isAuthenticted, update_status);
+
+/**
+ * Claim found item
+ */
+router.post("/claim/:id", isAuthenticted, claimFoundItem);
+
+/**
+ * Report lost item as found
+ */
+router.post("/report/:id", isAuthenticted, reportLostItem);
+
+/**
+ * Approve claim/report
+ */
+router.post("/approve/:id", isAuthenticted, approveClaimOrReport);
 
 module.exports = router;
