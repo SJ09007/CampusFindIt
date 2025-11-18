@@ -9,7 +9,7 @@ import styles from "../styles/HomeNavbar.module.css";
 const HomeNavbar = ({ onNavigate, onLogout }) => {
   return (
     <nav className={styles.navbar}>
-      <div className={styles.logo}>TheLOGO</div>
+      <div className={styles.logo}>CampusFindIt</div>
       <ul className={styles.menu}>
         {/* Navigation to the Item List View */}
         <li onClick={() => window.location.href = "/lost-items"}>Lost items</li>
