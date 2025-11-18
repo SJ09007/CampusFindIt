@@ -21,30 +21,42 @@ const HomeNavbar = ({ onNavigate, onLogout }) => {
         />
       </div>
       <ul className={styles.menu}>
-        {/* Navigation to the Item Views */}
-        <li onClick={() => window.location.href = "/lost-items"}>Lost items</li>
-        <li onClick={() => window.location.href = "/found-items"}>Found items</li>
-        <li onClick={() => window.location.href = "/browse-items"}>Browse items</li>
+        <li onClick={() => (window.location.href = "/home")}>Browse items</li>
+        <li onClick={() => (window.location.href = "/lost-items")}>Lost items</li>
+        <li onClick={() => (window.location.href = "/found-items")}>Found items</li>
         <li
-          onClick={() => onNavigate("report")}
+          onClick={() => {
+            console.log("Navigating to report view");
+            onNavigate && onNavigate("report");
+          }}
           style={{ fontWeight: "bold", color: "#007bff", cursor: "pointer" }}
         >
           Report item
         </li>
       </ul>
       <div className={styles.profile}>
-        {/* Clicking avatar or name goes to profile page */}
-        <div className={styles.avatar} onClick={() => window.location.href = "/profile"} style={{ cursor: "pointer" }}></div>
-        <span style={{ cursor: "pointer" }} onClick={() => window.location.href = "/profile"}>You</span>
-        {/* Logout Button */}
+        <div
+          className={styles.avatar}
+          onClick={() => (window.location.href = "/profile")}
+          style={{ cursor: "pointer" }}
+        ></div>
+        <span
+          style={{ cursor: "pointer" }}
+          onClick={() => (window.location.href = "/profile")}
+        >
+          You
+        </span>
         <li
-          onClick={onLogout}
+          onClick={() => {
+            console.log("Logout button clicked");
+            onLogout && onLogout();
+          }}
           style={{
             marginLeft: "1rem",
             fontWeight: "bold",
             color: "#e74c3c",
             cursor: "pointer",
-            listStyle: "none",
+            listStyle: "none", // Remove bullet point for list item
           }}
         >
           Logout

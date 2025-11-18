@@ -68,7 +68,7 @@ function App() {
           path="/lost-items"
           element={
             <PrivateRoute>
-              <LostItemsPage />
+              <LostItemsPage onLogout={handleLogout} />
             </PrivateRoute>
           }
         />
@@ -76,7 +76,7 @@ function App() {
           path="/found-items"
           element={
             <PrivateRoute>
-              <FoundItemsPage />
+              <FoundItemsPage onLogout={handleLogout} />
             </PrivateRoute>
           }
         />
@@ -84,7 +84,7 @@ function App() {
           path="/browse-items"
           element={
             <PrivateRoute>
-              <BrowseItemsPage />
+              <BrowseItemsPage onLogout={handleLogout} />
             </PrivateRoute>
           }
         />
@@ -92,7 +92,7 @@ function App() {
           path="/profile"
           element={
             <PrivateRoute>
-              <ProfilePage />
+              <ProfilePage onLogout={handleLogout} />
             </PrivateRoute>
           }
         />

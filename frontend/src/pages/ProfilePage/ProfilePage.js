@@ -5,7 +5,7 @@ import HomeNavbar from "../HomePage/components/HomeNavbar";
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:3100/api";
 
-const ProfilePage = () => {
+const ProfilePage = ({ onLogout }) => {
   const [myPosts, setMyPosts] = useState([]);
   const [myClaims, setMyClaims] = useState([]);
   const [activeTab, setActiveTab] = useState("profile");
@@ -37,6 +37,10 @@ const ProfilePage = () => {
       .catch(err => console.error("Error fetching claims:", err));
   }, []);
 
+  const handleNavigate = (view) => {
+    window.location.href = "/home";
+  };
+
   const handleEditToggle = () => {
     setIsEditing(!isEditing);
   };
@@ -65,7 +69,7 @@ const ProfilePage = () => {
 
   return (
     <div className={styles.profileContainer}>
-      <HomeNavbar />
+      <HomeNavbar onNavigate={handleNavigate} onLogout={onLogout} />
       <h1 className={styles.title}>My Profile</h1>
       <div className={styles.subNavbar}>
         <button onClick={() => setActiveTab("profile")} className={activeTab === "profile" ? styles.activeTab : ""}>My Profile</button>

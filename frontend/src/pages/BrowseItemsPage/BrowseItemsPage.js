@@ -6,7 +6,7 @@ import HomeNavbar from "../HomePage/components/HomeNavbar";
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:3100/api";
 
-const BrowseItemsPage = () => {
+const BrowseItemsPage = ({ onLogout }) => {
   const [items, setItems] = useState([]);
 
   useEffect(() => {
@@ -15,9 +15,13 @@ const BrowseItemsPage = () => {
       .then((data) => setItems(data));
   }, []);
 
+  const handleNavigate = (view) => {
+    window.location.href = "/home";
+  };
+
   return (
     <div className={styles.pageContainer}>
-      <HomeNavbar />
+      <HomeNavbar onNavigate={handleNavigate} onLogout={onLogout} />
       <h1>Browse All Items</h1>
       <div className={styles.grid}>
         {items.length === 0 ? (
