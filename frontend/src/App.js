@@ -9,6 +9,10 @@ import {
 import LandingPage from "./pages/LandingPage/LandingPage";
 import AuthenticationPage from "./pages/Authentication/AuthenticationPage";
 import HomePage from "./pages/HomePage/HomePage";
+import LostItemsPage from "./pages/LostItemsPage/LostItemsPage";
+import FoundItemsPage from "./pages/FoundItemsPage/FoundItemsPage";
+import BrowseItemsPage from "./pages/BrowseItemsPage/BrowseItemsPage";
+import ProfilePage from "./pages/ProfilePage/ProfilePage";
 import OtpPage from "./pages/OTPpage/OtpPage";
 import ForgotPasswordPage from "./pages/Authentication/ForgotPasswordPage";
 
@@ -57,6 +61,38 @@ function App() {
           element={
             <PrivateRoute>
               <HomePage onLogout={handleLogout} />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/lost-items"
+          element={
+            <PrivateRoute>
+              <LostItemsPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/found-items"
+          element={
+            <PrivateRoute>
+              <FoundItemsPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/browse-items"
+          element={
+            <PrivateRoute>
+              <BrowseItemsPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <PrivateRoute>
+              <ProfilePage />
             </PrivateRoute>
           }
         />

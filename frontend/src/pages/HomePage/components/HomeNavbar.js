@@ -12,9 +12,9 @@ const HomeNavbar = ({ onNavigate, onLogout }) => {
       <div className={styles.logo}>TheLOGO</div>
       <ul className={styles.menu}>
         {/* Navigation to the Item List View */}
-        <li onClick={() => onNavigate("list")}>Lost items</li>
-        <li onClick={() => onNavigate("list")}>Found items</li>
-        <li>About us</li>
+        <li onClick={() => window.location.href = "/lost-items"}>Lost items</li>
+        <li onClick={() => window.location.href = "/found-items"}>Found items</li>
+        <li onClick={() => window.location.href = "/browse-items"}>Browse items</li>
 
         {/* Navigation to the Report Item Form View */}
         <li
@@ -25,10 +25,8 @@ const HomeNavbar = ({ onNavigate, onLogout }) => {
         </li>
       </ul>
       <div className={styles.profile}>
-        <div className={styles.avatar}></div>
-        <span>You</span>
-
-        {/* Logout Button */}
+        <div className={styles.avatar} onClick={() => window.location.href = "/profile"} style={{ cursor: "pointer" }}></div>
+        <span style={{ cursor: "pointer" }} onClick={() => window.location.href = "/profile"}>You</span>
         <li
           onClick={onLogout}
           style={{
@@ -36,7 +34,7 @@ const HomeNavbar = ({ onNavigate, onLogout }) => {
             fontWeight: "bold",
             color: "#e74c3c",
             cursor: "pointer",
-            listStyle: "none", // Remove bullet point for list item
+            listStyle: "none",
           }}
         >
           Logout

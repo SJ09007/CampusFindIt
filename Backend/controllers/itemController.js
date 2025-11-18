@@ -236,6 +236,94 @@ const update_status = async (req, res) => {
   }
 };
 
+/**
+ * Claim a found item
+ */
+const claimFoundItem = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { message } = req.body;
+    if (!req.user) return res.status(401).json({ message: "Unauthorized" });
+
+    const item = await Item.findById(id);
+    if (!item) return res.status(404).json({ message: "Item not found" });
+
+    if (item.postedBy.toString() === req.user.id)
+      return res.status(400).json({ message: "You cannot claim your own item" });
+
+    const claim = new ClaimedItem({
+      itemId: id,
+      claimerId: req.user.id,
+      message,
+    });
+    await claim.save();
+
+    // Notify the owner (email logic can be added here)
+    res.status(201).json({ message: "Claim submitted successfully" });
+  } catch (err) {
+    console.error("claimFoundItem error:", err);
+    res.status(500).json({ message: err.message });
+  }
+};
+
+/**
+ * Report a lost item as found
+ */
+const reportLostItem = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { whenWhere, extra } = req.body;
+    if (!req.user) return res.status(401).json({ message: "Unauthorized" });
+
+    const item = await Item.findById(id);
+    if (!item) return res.status(404).json({ message: "Item not found" });
+
+    if (item.postedBy.toString() === req.user.id)
+      return res.status(400).json({ message: "You cannot report your own item" });
+
+    const report = new ClaimedItem({
+      itemId: id,
+      claimerId: req.user.id,
+      message: `Found at: ${whenWhere}. ${extra}`,
+    });
+    await report.save();
+
+    // Notify the owner (email logic can be added here)
+    res.status(201).json({ message: "Report submitted successfully" });
+  } catch (err) {
+    console.error("reportLostItem error:", err);
+    res.status(500).json({ message: err.message });
+  }
+};
+
+/**
+ * Approve a claim or report
+ */
+const approveClaimOrReport = async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (!req.user) return res.status(401).json({ message: "Unauthorized" });
+
+    const claim = await ClaimedItem.findById(id);
+    if (!claim) return res.status(404).json({ message: "Claim/Report not found" });
+
+    const item = await Item.findById(claim.itemId);
+    if (!item) return res.status(404).json({ message: "Item not found" });
+
+    if (item.postedBy.toString() !== req.user.id)
+      return res.status(403).json({ message: "You can only approve claims/reports for your own items" });
+
+    claim.approved = true;
+    await claim.save();
+
+    // Notify the claimer/reporter (email logic can be added here)
+    res.status(200).json({ message: "Claim/Report approved successfully" });
+  } catch (err) {
+    console.error("approveClaimOrReport error:", err);
+    res.status(500).json({ message: err.message });
+  }
+};
+
 module.exports = {
   createItem,
   getAllItems,
@@ -246,4 +334,7 @@ module.exports = {
   getMyPostedItemsLost,
   getItemsPostedOnDate,
   update_status,
+  claimFoundItem,
+  reportLostItem,
+  approveClaimOrReport,
 };

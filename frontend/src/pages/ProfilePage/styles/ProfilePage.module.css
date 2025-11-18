@@ -1,0 +1,61 @@
+.profileContainer {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 32px 16px;
+}
+.title {
+  font-size: 2rem;
+  margin-bottom: 24px;
+}
+.tabs {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+.activeTab {
+  font-weight: bold;
+  border-bottom: 2px solid #3182ce;
+}
+.tabContent {
+  background: #f9f9f9;
+  border-radius: 8px;
+  padding: 18px;
+}
+.itemCard {
+  background: #fff;
+  border-radius: 6px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+  margin-bottom: 16px;
+  padding: 12px 16px;
+}
+.deleteBtn {
+  background: #e53e3e;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 6px 12px;
+  margin-top: 8px;
+  cursor: pointer;
+}
+.approveBtn {
+  background: #38a169;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 6px 12px;
+  margin-top: 8px;
+  cursor: pointer;
+}
+.requestsSection {
+  margin-top: 10px;
+  background: #f1f5f9;
+  border-radius: 6px;
+  padding: 10px;
+}
+.requestCard {
+  margin-bottom: 8px;
+  padding: 6px;
+  background: #fff;
+  border-radius: 4px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+}
