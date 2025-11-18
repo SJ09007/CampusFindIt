@@ -206,34 +206,36 @@ const ItemDetailModal = ({ item = {}, onClose = () => {}, onClaimSuccess }) => {
         </button>
 
         <div className={styles.content}>
-          <div className={styles.left}>
-            <img
-              src={getTransformed(mainImage, "w_900,c_fill,q_auto,f_auto")}
-              alt={item.title || "item image"}
-              className={styles.mainImage}
-              onError={(e) => (e.target.src = "/placeholder.png")}
-            />
+          {item.status !== "lost" && (
+            <div className={styles.left}>
+              <img
+                src={getTransformed(mainImage, "w_900,c_fill,q_auto,f_auto")}
+                alt={item.title || "item image"}
+                className={styles.mainImage}
+                onError={(e) => (e.target.src = "/placeholder.png")}
+              />
 
-            <div className={styles.gallery}>
-              {images.length > 0 ? (
-                images.map((img, idx) => (
+              <div className={styles.gallery}>
+                {images.length > 0 ? (
+                  images.map((img, idx) => (
+                    <img
+                      key={idx}
+                      src={getTransformed(img, "w_300,c_fill,q_auto,f_auto")}
+                      alt={`${item.title || "item"}-${idx}`}
+                      className={styles.thumb}
+                      onClick={() => setMainImage(img)}
+                    />
+                  ))
+                ) : (
                   <img
-                    key={idx}
-                    src={getTransformed(img, "w_300,c_fill,q_auto,f_auto")}
-                    alt={`${item.title || "item"}-${idx}`}
+                    src="/placeholder.png"
+                    alt="placeholder"
                     className={styles.thumb}
-                    onClick={() => setMainImage(img)}
                   />
-                ))
-              ) : (
-                <img
-                  src="/placeholder.png"
-                  alt="placeholder"
-                  className={styles.thumb}
-                />
-              )}
+                )}
+              </div>
             </div>
-          </div>
+          )}
 
           <div className={styles.right}>
             <h2>{item.title || "Untitled item"}</h2>

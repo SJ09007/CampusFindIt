@@ -2,21 +2,36 @@
 import React, { useEffect, useState } from "react";
 import ItemCard from "../../components/ItemCard";
 import styles from "../HomePage/styles/HomePage.module.css";
+import HomeNavbar from "../HomePage/components/HomeNavbar";
+
 const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:3100/api";
-const BrowseItemsPage = () => {
+
+const BrowseItemsPage = ({ onLogout }) => {
   const [items, setItems] = useState([]);
+
   useEffect(() => {
     fetch(`${API_BASE_URL}/items/getall`, { credentials: "include" })
-      .then(res => res.json())
-      .then(data => setItems(data));
+      .then((res) => res.json())
+      .then((data) => setItems(data));
   }, []);
+
+  const handleNavigate = (view) => {
+    window.location.href = "/home";
+  };
+
   return (
     <div className={styles.pageContainer}>
+      <HomeNavbar onNavigate={handleNavigate} onLogout={onLogout} />
       <h1>Browse All Items</h1>
       <div className={styles.grid}>
-        {items.length === 0 ? <p>No items yet.</p> : items.map(item => <ItemCard key={item._id} item={item} onClick={()=>{}} />)}
+        {items.length === 0 ? (
+          <p>No items yet.</p>
+        ) : (
+          items.map((item) => <ItemCard key={item._id} item={item} onClick={() => {}} />)
+        )}
       </div>
     </div>
   );
 };
+
 export default BrowseItemsPage;

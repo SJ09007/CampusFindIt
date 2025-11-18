@@ -50,13 +50,22 @@ const HomePage = ({ onLogout }) => {
   };
 
   const handleReportSuccess = () => {
+    console.log("Report submitted successfully. Switching to list view.");
     fetchItems();
     setCurrentView("list");
   };
 
+  const handleNavigate = (view) => {
+    console.log(`Navigating to view: ${view}`);
+    setCurrentView(view);
+    if (view === "report") {
+      setSelectedItem(null); // Reset selected item to avoid conflicts
+    }
+  };
+
   return (
     <div className={styles.pageContainer}>
-      <HomeNavbar onNavigate={setCurrentView} onLogout={onLogout} />
+      <HomeNavbar onNavigate={handleNavigate} onLogout={onLogout} />
 
       {currentView === "list" && (
         <>
@@ -118,7 +127,7 @@ const HomePage = ({ onLogout }) => {
           >
             ◀ Back to List
           </button>
-          <ReportItemForm onSuccess={handleReportSuccess} />
+          <ReportItemForm key={Date.now()} onSuccess={handleReportSuccess} />
         </div>
       )}
 

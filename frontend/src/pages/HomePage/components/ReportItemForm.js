@@ -273,22 +273,24 @@ const ReportItemForm = ({ onSuccess }) => {
           />
         </div>
 
-        <div className={styles.row}>
-          <label className={styles.label}>
-            Images {formData.status === "found" ? "(required)" : "(optional)"}
-          </label>
-          <input
-            type="file"
-            accept="image/*"
-            multiple
-            onChange={handleFileChange}
-          />
-          <div className={styles.hint}>
-            You can upload up to 5 images. Max size 6MB each.
+        {formData.status === "found" && (
+          <div className={styles.row}>
+            <label className={styles.label}>
+              Images (required)
+            </label>
+            <input
+              type="file"
+              accept="image/*"
+              multiple
+              onChange={handleFileChange}
+            />
+            <div className={styles.hint}>
+              You can upload up to 5 images. Max size 6MB each.
+            </div>
           </div>
-        </div>
+        )}
 
-        {previews && previews.length > 0 && (
+        {formData.status === "found" && previews && previews.length > 0 && (
           <div className={styles.previewWrapper}>
             {previews.map((src, i) => (
               <div key={i} className={styles.previewItem}>
@@ -301,8 +303,7 @@ const ReportItemForm = ({ onSuccess }) => {
                   type="button"
                   className={styles.removeBtn}
                   onClick={() => {
-                    const newFiles = imageFiles.filter((_, idx) => idx !== i);
-                    setImageFiles(newFiles);
+                    setImageFiles((files) => files.filter((_, idx) => idx !== i));
                   }}
                 >
                   Remove

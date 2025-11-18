@@ -9,32 +9,54 @@ import styles from "../styles/HomeNavbar.module.css";
 const HomeNavbar = ({ onNavigate, onLogout }) => {
   return (
     <nav className={styles.navbar}>
-      <div className={styles.logo}>TheLOGO</div>
+      <div className={styles.logo}>
+        <img
+          src="/csf 2.png"
+          alt="CampusFindIt Logo"
+          style={{
+            height: "48px",
+            width: "auto",
+            verticalAlign: "middle",
+          }}
+        />
+      </div>
       <ul className={styles.menu}>
-        {/* Navigation to the Item List View */}
-        <li onClick={() => window.location.href = "/lost-items"}>Lost items</li>
-        <li onClick={() => window.location.href = "/found-items"}>Found items</li>
-        <li onClick={() => window.location.href = "/browse-items"}>Browse items</li>
-
-        {/* Navigation to the Report Item Form View */}
+        <li onClick={() => (window.location.href = "/home")}>Browse items</li>
+        <li onClick={() => (window.location.href = "/lost-items")}>Lost items</li>
+        <li onClick={() => (window.location.href = "/found-items")}>Found items</li>
         <li
-          onClick={() => onNavigate("report")}
+          onClick={() => {
+            console.log("Navigating to report view");
+            onNavigate && onNavigate("report");
+          }}
           style={{ fontWeight: "bold", color: "#007bff", cursor: "pointer" }}
         >
           Report item
         </li>
       </ul>
       <div className={styles.profile}>
-        <div className={styles.avatar} onClick={() => window.location.href = "/profile"} style={{ cursor: "pointer" }}></div>
-        <span style={{ cursor: "pointer" }} onClick={() => window.location.href = "/profile"}>You</span>
+        <div
+          className={styles.avatar}
+          onClick={() => (window.location.href = "/profile")}
+          style={{ cursor: "pointer" }}
+        ></div>
+        <span
+          style={{ cursor: "pointer" }}
+          onClick={() => (window.location.href = "/profile")}
+        >
+          You
+        </span>
         <li
-          onClick={onLogout}
+          onClick={() => {
+            console.log("Logout button clicked");
+            onLogout && onLogout();
+          }}
           style={{
             marginLeft: "1rem",
             fontWeight: "bold",
             color: "#e74c3c",
             cursor: "pointer",
-            listStyle: "none",
+            listStyle: "none", // Remove bullet point for list item
           }}
         >
           Logout
