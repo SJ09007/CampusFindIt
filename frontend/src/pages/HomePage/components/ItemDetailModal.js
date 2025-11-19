@@ -6,10 +6,13 @@ const API_BASE_URL =
   process.env.REACT_APP_API_URL || "http://localhost:3100/api";
 
 const ItemDetailModal = ({ item = {}, onClose = () => {}, onClaimSuccess }) => {
-  // Simulate current user (replace with actual user context in real app)
-  const currentUser = localStorage.getItem("username") || "";
-  const isOwner = item?.postedBy === currentUser;
+  // Get current user info
+  const userInfo = JSON.parse(localStorage.getItem("user_info") || "{}");
+  const currentUserId = userInfo.id || userInfo._id;
+  const isOwner = item?.postedBy === currentUserId;
+  
   const [claiming, setClaiming] = useState(false);
+  const [claimCount, setClaimCount] = useState(0);
   const [showDeclaration, setShowDeclaration] = useState(false);
   const [declarationAgreed, setDeclarationAgreed] = useState(false);
   const [showDescription, setShowDescription] = useState(false);
@@ -25,6 +28,7 @@ const ItemDetailModal = ({ item = {}, onClose = () => {}, onClaimSuccess }) => {
   const [foundError, setFoundError] = useState("");
     // Step 1: Show found declaration
     const handleFoundClick = () => {
+      console.log("Found button clicked!");
       setShowFoundDeclaration(true);
       setStatusMessage("");
       setStatusError(false);
@@ -57,16 +61,18 @@ const ItemDetailModal = ({ item = {}, onClose = () => {}, onClaimSuccess }) => {
       setStatusMessage("Submitting found report...");
       setStatusError(false);
       try {
-        // Hardcoded API, backend should handle this
-        const res = await fetch(`${API_BASE_URL}/claims/reportfound/${item._id}`, {
+        const res = await fetch(`${API_BASE_URL}/claims/addclaim/${item._id}`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            "Authorization": `Bearer ${maybeToken}`
           },
           credentials: "include",
           body: JSON.stringify({
-            whenWhere: foundDetails.whenWhere,
-            extra: foundDetails.extra,
+            message: foundDetails.extra || "I found this item",
+            foundLocation: foundDetails.whenWhere,
+            foundDate: new Date().toISOString(),
+            claimType: "found", // Reporting found a lost item
           }),
         });
         const payload = await res.json().catch(() => ({}));
@@ -74,11 +80,12 @@ const ItemDetailModal = ({ item = {}, onClose = () => {}, onClaimSuccess }) => {
           const errMsg = payload?.message || payload?.error || "Report failed";
           throw new Error(errMsg);
         }
-        setStatusMessage("Report sent to owner successfully.");
+        setStatusMessage("Report sent to owner successfully. They will review your report.");
         setStatusError(false);
+        if (onClaimSuccess) onClaimSuccess();
         setTimeout(() => {
           onClose();
-        }, 700);
+        }, 1500);
       } catch (err) {
         setStatusError(true);
         setStatusMessage(err.message || "Report failed.");
@@ -109,6 +116,7 @@ const ItemDetailModal = ({ item = {}, onClose = () => {}, onClaimSuccess }) => {
   // Claim handler — uses credentials (cookie-based auth)
   // Step 1: Show declaration
   const handleClaimClick = () => {
+    console.log("Claim button clicked!");
     setShowDeclaration(true);
     setStatusMessage("");
     setStatusError(false);
@@ -141,15 +149,16 @@ const ItemDetailModal = ({ item = {}, onClose = () => {}, onClaimSuccess }) => {
     setStatusMessage("Submitting claim...");
     setStatusError(false);
     try {
-      // Hardcoded API, backend should handle this
       const res = await fetch(`${API_BASE_URL}/claims/addclaim/${item._id}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "Authorization": `Bearer ${maybeToken}`
         },
         credentials: "include",
         body: JSON.stringify({
           message: description,
+          claimType: "claim", // Claiming a found item
         }),
       });
       const payload = await res.json().catch(() => ({}));
@@ -157,12 +166,12 @@ const ItemDetailModal = ({ item = {}, onClose = () => {}, onClaimSuccess }) => {
         const errMsg = payload?.message || payload?.error || "Claim failed";
         throw new Error(errMsg);
       }
-      setStatusMessage("Claim submitted successfully.");
+      setStatusMessage("Claim submitted successfully. The finder will review your claim.");
       setStatusError(false);
       if (onClaimSuccess) onClaimSuccess();
       setTimeout(() => {
         onClose();
-      }, 700);
+      }, 1500);
     } catch (err) {
       setStatusError(true);
       setStatusMessage(err.message || "Claim failed.");
@@ -173,10 +182,21 @@ const ItemDetailModal = ({ item = {}, onClose = () => {}, onClaimSuccess }) => {
   };
 
   const images = item.images && item.images.length ? item.images : [];
+  
   // Keep mainImage in state (already init above). Ensure it updates when item prop changes.
   React.useEffect(() => {
     setMainImage(images[0] || "/placeholder.png");
   }, [item]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Fetch claim count
+  React.useEffect(() => {
+    if (item._id && item.status !== "claimed" && item.status !== "reported") {
+      fetch(`${API_BASE_URL}/claims/count/${item._id}`)
+        .then(res => res.json())
+        .then(data => setClaimCount(data.count || 0))
+        .catch(err => console.error("Error fetching claim count:", err));
+    }
+  }, [item._id, item.status]);
 
   const safeDate = (() => {
     try {
@@ -267,6 +287,20 @@ const ItemDetailModal = ({ item = {}, onClose = () => {}, onClaimSuccess }) => {
             <p style={{ marginTop: 12 }}>
               <strong>Location:</strong> {item.location || "Unknown"}
             </p>
+
+            {claimCount > 0 && (
+              <div style={{ 
+                marginTop: 12, 
+                padding: "8px 12px", 
+                background: "#ebf8ff", 
+                borderRadius: 6,
+                color: "#2c5282",
+                fontWeight: 600,
+                fontSize: "0.95rem"
+              }}>
+                📢 {claimCount} {claimCount === 1 ? 'person has' : 'people have'} claimed this item
+              </div>
+            )}
 
             {statusMessage && (
               <div

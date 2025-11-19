@@ -1,5 +1,7 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import styles from "../styles/HomeNavbar.module.css";
+
+const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:3100/api";
 
 /**
  * @param {object} props
@@ -8,6 +10,29 @@ import styles from "../styles/HomeNavbar.module.css";
  * @param {string} props.currentFilter - Current filter state ('all', 'lost', or 'found').
  */
 const HomeNavbar = ({ onLogout, onFilterChange, currentFilter }) => {
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  // Fetch unread notification count
+  useEffect(() => {
+    const fetchUnreadCount = () => {
+      const token = localStorage.getItem("access_token");
+      if (!token) return;
+
+      fetch(`${API_BASE_URL}/notifications/unread-count`, {
+        credentials: "include",
+        headers: { Authorization: `Bearer ${token}` }
+      })
+        .then(res => res.json())
+        .then(data => setUnreadCount(data.count || 0))
+        .catch(err => console.error("Error fetching unread count:", err));
+    };
+
+    fetchUnreadCount();
+    // Refresh count every 30 seconds
+    const interval = setInterval(fetchUnreadCount, 30000);
+    return () => clearInterval(interval);
+  }, []);
+
   // Get user initial from localStorage
   const getUserInitial = () => {
     const userInfo = localStorage.getItem("user_info");
@@ -87,6 +112,18 @@ const HomeNavbar = ({ onLogout, onFilterChange, currentFilter }) => {
         </li>
       </ul>
       <div className={styles.profile}>
+        {/* Notification Bell */}
+        <div 
+          className={styles.notificationBell}
+          onClick={() => (window.location.href = "/profile?tab=notifications")}
+          title="Notifications"
+        >
+          <span className={styles.bellIcon}>🔔</span>
+          {unreadCount > 0 && (
+            <span className={styles.notificationBadge}>{unreadCount}</span>
+          )}
+        </div>
+
         <div
           className={styles.avatar}
           onClick={() => (window.location.href = "/profile")}

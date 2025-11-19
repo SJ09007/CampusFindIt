@@ -1,7 +1,10 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import styles from "../pages/HomePage/styles/HomePage.module.css";
 
+const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:3100/api";
+
 const ItemCard = ({ item, onClick }) => {
+  const [claimCount, setClaimCount] = useState(0);
   const rawUrl = item.images && item.images.length ? item.images[0] : null;
   let thumbnail = "/placeholder.png";
 
@@ -28,6 +31,16 @@ const ItemCard = ({ item, onClick }) => {
         day: "numeric",
       })
     : "";
+
+  // Fetch claim count for this item
+  useEffect(() => {
+    if (item._id && item.status !== "claimed" && item.status !== "reported") {
+      fetch(`${API_BASE_URL}/claims/count/${item._id}`)
+        .then(res => res.json())
+        .then(data => setClaimCount(data.count || 0))
+        .catch(err => console.error("Error fetching claim count:", err));
+    }
+  }, [item._id, item.status]);
 
   return (
     <div
@@ -84,6 +97,12 @@ const ItemCard = ({ item, onClick }) => {
           <span className={styles.cardLocation}>📍 {item.location}</span>
           <span className={styles.cardDate}>📅 {formattedDate}</span>
         </div>
+        
+        {claimCount > 0 && (
+          <div className={styles.claimBadge}>
+            📢 {claimCount} {claimCount === 1 ? 'claim' : 'claims'}
+          </div>
+        )}
       </div>
     </div>
   );

@@ -7,10 +7,12 @@ const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:3100/api
 
 const ProfilePage = ({ onLogout }) => {
   const [myPosts, setMyPosts] = useState([]);
+  const [postClaims, setPostClaims] = useState({}); // Store claims for each post
   const [myClaims, setMyClaims] = useState([]);
   const [notifications, setNotifications] = useState([]);
   const [activeTab, setActiveTab] = useState("profile");
   const [expandedPosts, setExpandedPosts] = useState({});
+  const [expandedClaims, setExpandedClaims] = useState({}); // Track which post's claims are expanded
   const [profileData, setProfileData] = useState({
     username: "",
     fullName: "",
@@ -18,6 +20,15 @@ const ProfilePage = ({ onLogout }) => {
     phone: "",
     studentId: "",
   });
+
+  // Check URL parameters for tab
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const tab = urlParams.get('tab');
+    if (tab && ['profile', 'posts', 'claims', 'notifications'].includes(tab)) {
+      setActiveTab(tab);
+    }
+  }, []);
 
   const toggleDescription = (postId) => {
     setExpandedPosts(prev => ({
@@ -51,31 +62,109 @@ const ProfilePage = ({ onLogout }) => {
   }, []);
 
   const fetchNotifications = () => {
-    // Mock notifications for now - you can replace with actual API call
-    const mockNotifications = [
-      {
-        id: 1,
-        type: "claim",
-        message: "Someone claimed your found item: Water Bottle",
-        timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000),
-        read: false
-      },
-      {
-        id: 2,
-        type: "match",
-        message: "A new item matching your lost item description was posted",
-        timestamp: new Date(Date.now() - 5 * 60 * 60 * 1000),
-        read: false
-      },
-      {
-        id: 3,
-        type: "approved",
-        message: "Your claim for 'Laptop Charger' has been approved",
-        timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000),
-        read: true
+    const token = localStorage.getItem("access_token");
+    const headers = token ? { Authorization: `Bearer ${token}` } : {};
+    
+    fetch(`${API_BASE_URL}/notifications`, { 
+      credentials: "include",
+      headers 
+    })
+      .then(res => res.json())
+      .then(data => {
+        console.log("Fetched notifications:", data);
+        setNotifications(Array.isArray(data) ? data : []);
+      })
+      .catch(err => {
+        console.error("Error fetching notifications:", err);
+        setNotifications([]);
+      });
+  };
+
+  const fetchClaimsForPost = async (postId) => {
+    try {
+      const token = localStorage.getItem("access_token");
+      const headers = token ? { Authorization: `Bearer ${token}` } : {};
+      
+      const response = await fetch(`${API_BASE_URL}/claims/getclaims/${postId}`, {
+        credentials: "include",
+        headers
+      });
+      
+      if (response.ok) {
+        const claims = await response.json();
+        setPostClaims(prev => ({ ...prev, [postId]: claims }));
       }
-    ];
-    setNotifications(mockNotifications);
+    } catch (err) {
+      console.error("Error fetching claims:", err);
+    }
+  };
+
+  const toggleClaimsView = (postId) => {
+    setExpandedClaims(prev => {
+      const newState = { ...prev, [postId]: !prev[postId] };
+      // Fetch claims when expanding
+      if (newState[postId] && !postClaims[postId]) {
+        fetchClaimsForPost(postId);
+      }
+      return newState;
+    });
+  };
+
+  const handleApproveClaim = async (claimId, postId) => {
+    if (!window.confirm("Are you sure you want to approve this claim?")) {
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem("access_token");
+      const headers = token ? { Authorization: `Bearer ${token}` } : {};
+      
+      const response = await fetch(`${API_BASE_URL}/claims/approve/${claimId}`, {
+        method: "POST",
+        credentials: "include",
+        headers
+      });
+
+      if (response.ok) {
+        alert("Claim approved! Contact information has been shared with both parties.");
+        fetchClaimsForPost(postId); // Refresh claims
+        fetchMyPosts(); // Refresh posts to update status
+      } else {
+        const data = await response.json();
+        alert(data.message || "Failed to approve claim");
+      }
+    } catch (err) {
+      console.error("Error approving claim:", err);
+      alert("Error approving claim");
+    }
+  };
+
+  const handleRejectClaim = async (claimId, postId) => {
+    if (!window.confirm("Are you sure you want to reject this claim?")) {
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem("access_token");
+      const headers = token ? { Authorization: `Bearer ${token}` } : {};
+      
+      const response = await fetch(`${API_BASE_URL}/claims/reject/${claimId}`, {
+        method: "POST",
+        credentials: "include",
+        headers
+      });
+
+      if (response.ok) {
+        alert("Claim rejected");
+        fetchClaimsForPost(postId); // Refresh claims
+      } else {
+        const data = await response.json();
+        alert(data.message || "Failed to reject claim");
+      }
+    } catch (err) {
+      console.error("Error rejecting claim:", err);
+      alert("Error rejecting claim");
+    }
   };
 
   const fetchMyPosts = () => {
@@ -101,7 +190,13 @@ const ProfilePage = ({ onLogout }) => {
   };
 
   const fetchMyClaims = () => {
-    fetch(`${API_BASE_URL}/user/myclaims`, { credentials: "include" })
+    const token = localStorage.getItem("access_token");
+    const headers = token ? { Authorization: `Bearer ${token}` } : {};
+    
+    fetch(`${API_BASE_URL}/claims/myclaims`, { 
+      credentials: "include",
+      headers 
+    })
       .then(res => res.json())
       .then(data => {
         console.log("Fetched claims:", data);
@@ -231,6 +326,9 @@ const ProfilePage = ({ onLogout }) => {
                   const isExpanded = expandedPosts[post._id];
                   const descriptionLines = post.description.split('\n').length;
                   const isLongDescription = post.description.length > 100 || descriptionLines > 2;
+                  const claims = postClaims[post._id] || [];
+                  const pendingClaims = claims.filter(c => c.status === 'pending');
+                  const claimsExpanded = expandedClaims[post._id];
                   
                   return (
                     <div key={post._id} className={styles.postCard}>
@@ -269,6 +367,80 @@ const ProfilePage = ({ onLogout }) => {
                           <p className={styles.postDate}>
                             {new Date(post.date).toLocaleDateString()}
                           </p>
+                          
+                          {/* Claims Section */}
+                          {post.status !== 'claimed' && post.status !== 'reported' && (
+                            <div className={styles.claimsSection}>
+                              <button 
+                                className={styles.viewClaimsBtn}
+                                onClick={() => toggleClaimsView(post._id)}
+                              >
+                                {pendingClaims.length > 0 ? (
+                                  <>📢 {pendingClaims.length} Pending Claim{pendingClaims.length !== 1 ? 's' : ''}</>
+                                ) : (
+                                  <>View Claims ({claims.length})</>
+                                )}
+                              </button>
+                              
+                              {claimsExpanded && (
+                                <div className={styles.claimsList}>
+                                  {claims.length === 0 ? (
+                                    <p className={styles.noClaims}>No claims yet</p>
+                                  ) : (
+                                    claims.map(claim => (
+                                      <div key={claim._id} className={styles.claimCard}>
+                                        <div className={styles.claimHeader}>
+                                          <span className={styles.claimerName}>
+                                            👤 {claim.claimerId?.username || 'Anonymous'}
+                                          </span>
+                                          <span className={`${styles.claimStatus} ${styles[claim.status]}`}>
+                                            {claim.status.toUpperCase()}
+                                          </span>
+                                        </div>
+                                        <div className={styles.claimDetails}>
+                                          <p><strong>Message:</strong> {claim.message}</p>
+                                          {claim.foundLocation && (
+                                            <p><strong>Location/Details:</strong> {claim.foundLocation}</p>
+                                          )}
+                                          {claim.foundDate && (
+                                            <p><strong>Date:</strong> {claim.foundDate}</p>
+                                          )}
+                                          <p className={styles.claimTime}>
+                                            Submitted: {new Date(claim.createdAt).toLocaleString()}
+                                          </p>
+                                        </div>
+                                        
+                                        {claim.status === 'pending' && (
+                                          <div className={styles.claimActions}>
+                                            <button 
+                                              className={styles.approveBtn}
+                                              onClick={() => handleApproveClaim(claim._id, post._id)}
+                                            >
+                                              ✅ Approve
+                                            </button>
+                                            <button 
+                                              className={styles.rejectBtn}
+                                              onClick={() => handleRejectClaim(claim._id, post._id)}
+                                            >
+                                              ❌ Reject
+                                            </button>
+                                          </div>
+                                        )}
+                                        
+                                        {claim.status === 'approved' && claim.claimerId && (
+                                          <div className={styles.contactInfo}>
+                                            <h4>📞 Contact Information:</h4>
+                                            <p><strong>Email:</strong> {post.contactEmail || claim.claimerId.email || 'Not provided'}</p>
+                                            <p><strong>Phone:</strong> {post.contactPhone || claim.claimerId.phone || 'Not provided'}</p>
+                                          </div>
+                                        )}
+                                      </div>
+                                    ))
+                                  )}
+                                </div>
+                              )}
+                            </div>
+                          )}
                         </div>
                         <button 
                           className={styles.deleteBtn}
@@ -285,18 +457,64 @@ const ProfilePage = ({ onLogout }) => {
           </div>
         )}
         {activeTab === "claims" && (
-          <div>
+          <div className={styles.claimsTabSection}>
             <h2>Items I Claimed/Reported</h2>
-            {!Array.isArray(myClaims) || myClaims.length === 0 ? <p>No claims yet.</p> : (
-              <ul>
+            {!Array.isArray(myClaims) || myClaims.length === 0 ? (
+              <p className={styles.noItems}>No claims yet.</p>
+            ) : (
+              <div className={styles.myClaimsGrid}>
                 {myClaims.map(claim => (
-                  <li key={claim._id} className={styles.itemCard}>
-                    <strong>{claim.itemTitle}</strong> ({claim.status})<br />
-                    <span>{claim.message}</span><br />
-                    <span>Status: {claim.approved ? "Approved" : "Pending"}</span>
-                  </li>
+                  <div key={claim._id} className={styles.myClaimCard}>
+                    <div className={styles.myClaimHeader}>
+                      <h3 className={styles.myClaimTitle}>
+                        {claim.itemId?.title || 'Item'}
+                      </h3>
+                      <span className={`${styles.claimStatus} ${styles[claim.status]}`}>
+                        {claim.status.toUpperCase()}
+                      </span>
+                    </div>
+                    
+                    {claim.itemId?.images && claim.itemId.images.length > 0 && (
+                      <img 
+                        src={claim.itemId.images[0]} 
+                        alt={claim.itemId.title}
+                        className={styles.myClaimImage}
+                      />
+                    )}
+                    
+                    <div className={styles.myClaimDetails}>
+                      <p><strong>Type:</strong> {claim.claimType === 'found' ? 'Found Report' : 'Claim'}</p>
+                      <p><strong>Your Message:</strong> {claim.message}</p>
+                      {claim.foundLocation && (
+                        <p><strong>Location/Details:</strong> {claim.foundLocation}</p>
+                      )}
+                      <p className={styles.claimTime}>
+                        Submitted: {new Date(claim.createdAt).toLocaleString()}
+                      </p>
+                    </div>
+                    
+                    {claim.status === 'approved' && claim.itemId?.postedBy && (
+                      <div className={styles.ownerContactInfo}>
+                        <h4>✅ Claim Approved - Owner Contact:</h4>
+                        <p><strong>Email:</strong> {claim.itemId.contactEmail || claim.itemId.postedBy.email || 'Not provided'}</p>
+                        <p><strong>Phone:</strong> {claim.itemId.contactPhone || claim.itemId.postedBy.phone || 'Not provided'}</p>
+                      </div>
+                    )}
+                    
+                    {claim.status === 'pending' && (
+                      <div className={styles.pendingNote}>
+                        ⏳ Waiting for owner to review your claim
+                      </div>
+                    )}
+                    
+                    {claim.status === 'rejected' && (
+                      <div className={styles.rejectedNote}>
+                        ❌ This claim was not approved by the owner
+                      </div>
+                    )}
+                  </div>
                 ))}
-              </ul>
+              </div>
             )}
           </div>
         )}
@@ -307,27 +525,66 @@ const ProfilePage = ({ onLogout }) => {
               <p className={styles.noItems}>No notifications yet.</p>
             ) : (
               <div className={styles.notificationsList}>
-                {notifications.map(notification => (
-                  <div 
-                    key={notification.id} 
-                    className={`${styles.notificationCard} ${!notification.read ? styles.unread : ''}`}
-                  >
-                    <div className={styles.notificationIcon}>
-                      {notification.type === 'claim' && '📢'}
-                      {notification.type === 'match' && '🔍'}
-                      {notification.type === 'approved' && '✅'}
+                {notifications.map(notification => {
+                  const handleNotificationClick = async () => {
+                    // Mark as read in backend and update UI immediately
+                    const token = localStorage.getItem("access_token");
+                    if (token && !notification.read) {
+                      try {
+                        await fetch(`${API_BASE_URL}/notifications/${notification._id}/read`, {
+                          method: 'PUT',
+                          credentials: 'include',
+                          headers: { Authorization: `Bearer ${token}` }
+                        });
+                        
+                        // Update local state immediately
+                        setNotifications(prev => 
+                          prev.map(n => 
+                            n._id === notification._id 
+                              ? { ...n, read: true } 
+                              : n
+                          )
+                        );
+                      } catch (err) {
+                        console.error("Error marking as read:", err);
+                      }
+                    }
+
+                    // Navigate based on notification type
+                    if (notification.type === 'claim') {
+                      // Owner received a claim - go to My Posts
+                      setActiveTab('posts');
+                    } else if (notification.type === 'approved' || notification.type === 'rejected') {
+                      // Claimer's claim was approved/rejected - go to My Claims
+                      setActiveTab('claims');
+                    }
+                  };
+
+                  return (
+                    <div 
+                      key={notification._id} 
+                      className={`${styles.notificationCard} ${!notification.read ? styles.unread : ''}`}
+                      onClick={handleNotificationClick}
+                      style={{ cursor: 'pointer' }}
+                    >
+                      <div className={styles.notificationIcon}>
+                        {notification.type === 'claim' && '📢'}
+                        {notification.type === 'match' && '🔍'}
+                        {notification.type === 'approved' && '✅'}
+                        {notification.type === 'rejected' && '❌'}
+                      </div>
+                      <div className={styles.notificationContent}>
+                        <p className={styles.notificationMessage}>{notification.message}</p>
+                        <span className={styles.notificationTime}>
+                          {new Date(notification.createdAt).toLocaleString()}
+                        </span>
+                      </div>
+                      {!notification.read && (
+                        <div className={styles.unreadDot}></div>
+                      )}
                     </div>
-                    <div className={styles.notificationContent}>
-                      <p className={styles.notificationMessage}>{notification.message}</p>
-                      <span className={styles.notificationTime}>
-                        {notification.timestamp.toLocaleString()}
-                      </span>
-                    </div>
-                    {!notification.read && (
-                      <div className={styles.unreadDot}></div>
-                    )}
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>
