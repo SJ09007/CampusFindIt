@@ -9,6 +9,26 @@ import styles from "../styles/HomeNavbar.module.css";
  * @param {string} props.currentFilter - Current filter state ('all', 'lost', or 'found').
  */
 const HomeNavbar = ({ onNavigate, onLogout, onFilterChange, currentFilter }) => {
+  const handleFilterClick = (filterType) => {
+    if (onFilterChange) {
+      // If on HomePage, use the filter function
+      onFilterChange(filterType);
+    } else {
+      // If on other pages, navigate to home with filter
+      window.location.href = `/home?filter=${filterType}`;
+    }
+  };
+
+  const handleReportClick = () => {
+    if (onNavigate) {
+      // If on HomePage, use the navigate function
+      onNavigate("report");
+    } else {
+      // If on other pages, navigate to home with report view
+      window.location.href = "/home?view=report";
+    }
+  };
+
   return (
     <nav className={styles.navbar}>
       <div className={styles.logo}>
@@ -24,7 +44,7 @@ const HomeNavbar = ({ onNavigate, onLogout, onFilterChange, currentFilter }) => 
       </div>
       <ul className={styles.menu}>
         <li 
-          onClick={() => onFilterChange && onFilterChange("all")}
+          onClick={() => handleFilterClick("all")}
           style={{ 
             fontWeight: currentFilter === "all" ? "bold" : "normal",
             color: currentFilter === "all" ? "#007bff" : "inherit"
@@ -33,7 +53,7 @@ const HomeNavbar = ({ onNavigate, onLogout, onFilterChange, currentFilter }) => 
           Browse items
         </li>
         <li 
-          onClick={() => onFilterChange && onFilterChange("lost")}
+          onClick={() => handleFilterClick("lost")}
           style={{ 
             fontWeight: currentFilter === "lost" ? "bold" : "normal",
             color: currentFilter === "lost" ? "#007bff" : "inherit"
@@ -42,7 +62,7 @@ const HomeNavbar = ({ onNavigate, onLogout, onFilterChange, currentFilter }) => 
           Lost items
         </li>
         <li 
-          onClick={() => onFilterChange && onFilterChange("found")}
+          onClick={() => handleFilterClick("found")}
           style={{ 
             fontWeight: currentFilter === "found" ? "bold" : "normal",
             color: currentFilter === "found" ? "#007bff" : "inherit"
@@ -51,10 +71,7 @@ const HomeNavbar = ({ onNavigate, onLogout, onFilterChange, currentFilter }) => 
           Found items
         </li>
         <li
-          onClick={() => {
-            console.log("Navigating to report view");
-            onNavigate && onNavigate("report");
-          }}
+          onClick={handleReportClick}
           style={{ fontWeight: "bold", color: "#007bff", cursor: "pointer" }}
         >
           Report item

@@ -10,13 +10,20 @@ const API_BASE_URL =
   process.env.REACT_APP_API_URL || "http://localhost:3100/api";
 
 const HomePage = ({ onLogout }) => {
+  // Read URL parameters
+  const urlParams = new URLSearchParams(window.location.search);
+  const initialFilter = urlParams.get("filter") || "all";
+  const initialView = urlParams.get("view") || "list";
+
   const [items, setItems] = useState([]);
-  const [currentView, setCurrentView] = useState("list"); // 'list' or 'report'
+  const [currentView, setCurrentView] = useState(initialView); // 'list' or 'report'
   const [selectedItem, setSelectedItem] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [filter, setFilter] = useState("all"); // 'all', 'lost', 'found'
+  const [filter, setFilter] = useState(initialFilter); // 'all', 'lost', 'found'
   const [searchQuery, setSearchQuery] = useState("");
+  const [showAllFound, setShowAllFound] = useState(false);
+  const [showAllLost, setShowAllLost] = useState(false);
 
   const fetchItems = async () => {
     setLoading(true);
@@ -51,6 +58,14 @@ const HomePage = ({ onLogout }) => {
 
   const lostItems = filteredItems.filter((i) => i.status === "lost");
   const foundItems = filteredItems.filter((i) => i.status === "found");
+
+  // Limit to 2 rows (assuming 4 items per row on average)
+  const ITEMS_PER_ROW = 4;
+  const MAX_ROWS = 2;
+  const MAX_ITEMS = ITEMS_PER_ROW * MAX_ROWS;
+
+  const displayedFoundItems = showAllFound ? foundItems : foundItems.slice(0, MAX_ITEMS);
+  const displayedLostItems = showAllLost ? lostItems : lostItems.slice(0, MAX_ITEMS);
 
   const openModal = (item) => setSelectedItem(item);
   const closeModal = () => setSelectedItem(null);
@@ -125,10 +140,20 @@ const HomePage = ({ onLogout }) => {
                     {foundItems.length === 0 && (
                       <p className={styles.emptyText}>No found items yet.</p>
                     )}
-                    {foundItems.map((item) => (
+                    {displayedFoundItems.map((item) => (
                       <ItemCard key={item._id} item={item} onClick={openModal} />
                     ))}
                   </div>
+                  {foundItems.length > MAX_ITEMS && (
+                    <div className={styles.viewAllContainer}>
+                      <button
+                        className={styles.viewAllBtn}
+                        onClick={() => setShowAllFound(!showAllFound)}
+                      >
+                        {showAllFound ? "Show Less" : `View All (${foundItems.length})`}
+                      </button>
+                    </div>
+                  )}
                 </section>
               )}
 
@@ -139,10 +164,20 @@ const HomePage = ({ onLogout }) => {
                     {lostItems.length === 0 && (
                       <p className={styles.emptyText}>No lost items yet.</p>
                     )}
-                    {lostItems.map((item) => (
+                    {displayedLostItems.map((item) => (
                       <ItemCard key={item._id} item={item} onClick={openModal} />
                     ))}
                   </div>
+                  {lostItems.length > MAX_ITEMS && (
+                    <div className={styles.viewAllContainer}>
+                      <button
+                        className={styles.viewAllBtn}
+                        onClick={() => setShowAllLost(!showAllLost)}
+                      >
+                        {showAllLost ? "Show Less" : `View All (${lostItems.length})`}
+                      </button>
+                    </div>
+                  )}
                 </section>
               )}
             </>

@@ -8,17 +8,7 @@ const ReportItemForm = ({ onSuccess }) => {
   const [formData, setFormData] = useState({
     title: "",
     description: "",
-    category: [
-      { label: "keys", value: "keys" },
-      { label: "laptop", value: "laptop" },
-      { label: "phone", value: "phone" },
-      { label: "earphones", value: "earphones" },
-      { label: "mobile", value: "mobile" },
-      { label: "tablet", value: "tablet" },
-      { label: "camera", value: "camera" },
-      { label: "accessories", value: "accessories" }, // if backend uses 'Accessories' or 'accessories' - match it
-      { label: "other", value: "other" },
-    ][0].value,
+    category: "clothes",
     status: "lost",
     location: "",
     date: new Date().toISOString().slice(0, 10),
@@ -132,14 +122,7 @@ const ReportItemForm = ({ onSuccess }) => {
       setFormData({
         title: "",
         description: "",
-        category: [
-          { label: "keys", value: "keys" },
-          { label: "Electronics", value: "electronics" },
-          { label: "ID Cards / Documents", value: "id_cards" },
-          { label: "Clothing / Apparel", value: "apparel" },
-          { label: "accessories", value: "accessories" }, // if backend uses 'Accessories' or 'accessories' - match it
-          { label: "other", value: "other" },
-        ][0].value,
+        category: "clothes",
         status: "lost",
         location: "",
         date: new Date().toISOString().slice(0, 10),
@@ -235,12 +218,16 @@ const ReportItemForm = ({ onSuccess }) => {
             required
           >
             {[
-              { label: "keys", value: "keys" },
+              { label: "Clothes or Shoes", value: "clothes" },
               { label: "Electronics", value: "electronics" },
-              { label: "ID Cards / Documents", value: "id_cards" },
-              { label: "Clothing / Apparel", value: "apparel" },
-              { label: "accessories", value: "accessories" }, // if backend uses 'Accessories' or 'accessories' - match it
-              { label: "other", value: "other" },
+              { label: "Books & Notebooks", value: "books_notebooks" },
+              { label: "Wallet & Purse", value: "wallet_purse" },
+              { label: "Watches", value: "watches" },
+              { label: "Spectacles", value: "spectacles" },
+              { label: "Keys", value: "keys" },
+              { label: "Tiffin or Bottle", value: "tiffin_bottle" },
+              { label: "Stationery", value: "stationery" },
+              { label: "Others", value: "others" },
             ].map((opt) => (
               <option key={opt.value} value={opt.value}>
                 {opt.label}
