@@ -37,6 +37,14 @@ const HowItWorks = () => {
           <h3>🤝 Connect & Reunite</h3>
           <p>Once approved, both parties receive each other's contact info via email. Arrange a safe meetup to return the item!</p>
         </div>
+        <div className={styles.successImageCard}>
+          <img 
+            src="/handshake.png" 
+            alt="Successful Reunion" 
+            className={styles.handshakeImg}
+          />
+          <p className={styles.successText}>Join thousands of happy users who've successfully reunited with their belongings!</p>
+        </div>
       </div>
     </section>
   );

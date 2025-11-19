@@ -70,7 +70,19 @@ const LoginForm = ({ onToggleForm }) => {
       console.log("Login response:", data);
 
       if (!response.ok) {
-        throw new Error(data.message || data.error || "Login failed.");
+        // Enhanced error messages
+        let errorMessage = data.message || data.error || "Login failed.";
+        
+        // Provide more specific error messages
+        if (errorMessage.toLowerCase().includes("password")) {
+          errorMessage = "❌ Incorrect password. Please try again.";
+        } else if (errorMessage.toLowerCase().includes("user not found") || errorMessage.toLowerCase().includes("email")) {
+          errorMessage = "❌ No account found with this email. Please sign up first.";
+        } else if (errorMessage.toLowerCase().includes("verified")) {
+          errorMessage = "⚠️ Please verify your email before logging in.";
+        }
+        
+        throw new Error(errorMessage);
       }
 
       if (!data.token) {
@@ -118,15 +130,15 @@ const LoginForm = ({ onToggleForm }) => {
       />
 
       {info && (
-        <p style={{ color: "green", fontSize: "0.9rem", textAlign: "center" }}>
+        <div className={styles.successMessage}>
           {info}
-        </p>
+        </div>
       )}
 
       {error && (
-        <p style={{ color: "red", fontSize: "0.9rem", textAlign: "center" }}>
+        <div className={styles.errorMessage}>
           {error}
-        </p>
+        </div>
       )}
 
       <button type="submit" className={styles.submitBtn} disabled={loading}>

@@ -124,7 +124,7 @@ const HomeNavbar = ({ onLogout, onFilterChange, currentFilter }) => {
           onClick={() => (window.location.href = "/profile?tab=notifications")}
           title="Notifications"
         >
-          <span className={styles.bellIcon}>🔔</span>
+          <span className={`${styles.bellIcon} ${unreadCount > 0 ? styles.bellRing : ''}`}>🔔</span>
           {unreadCount > 0 && (
             <span className={styles.notificationBadge}>{unreadCount}</span>
           )}
