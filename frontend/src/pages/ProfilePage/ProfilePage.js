@@ -8,6 +8,7 @@ const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:3100/api
 const ProfilePage = ({ onLogout }) => {
   const [myPosts, setMyPosts] = useState([]);
   const [myClaims, setMyClaims] = useState([]);
+  const [notifications, setNotifications] = useState([]);
   const [activeTab, setActiveTab] = useState("profile");
   const [expandedPosts, setExpandedPosts] = useState({});
   const [profileData, setProfileData] = useState({
@@ -46,7 +47,36 @@ const ProfilePage = ({ onLogout }) => {
 
     fetchMyPosts();
     fetchMyClaims();
+    fetchNotifications();
   }, []);
+
+  const fetchNotifications = () => {
+    // Mock notifications for now - you can replace with actual API call
+    const mockNotifications = [
+      {
+        id: 1,
+        type: "claim",
+        message: "Someone claimed your found item: Water Bottle",
+        timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000),
+        read: false
+      },
+      {
+        id: 2,
+        type: "match",
+        message: "A new item matching your lost item description was posted",
+        timestamp: new Date(Date.now() - 5 * 60 * 60 * 1000),
+        read: false
+      },
+      {
+        id: 3,
+        type: "approved",
+        message: "Your claim for 'Laptop Charger' has been approved",
+        timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000),
+        read: true
+      }
+    ];
+    setNotifications(mockNotifications);
+  };
 
   const fetchMyPosts = () => {
     const token = localStorage.getItem("access_token");
@@ -123,6 +153,14 @@ const ProfilePage = ({ onLogout }) => {
         <button onClick={() => setActiveTab("profile")} className={activeTab === "profile" ? styles.activeTab : ""}>My Profile</button>
         <button onClick={() => setActiveTab("posts")} className={activeTab === "posts" ? styles.activeTab : ""}>My Posts</button>
         <button onClick={() => setActiveTab("claims")} className={activeTab === "claims" ? styles.activeTab : ""}>My Claims</button>
+        <button onClick={() => setActiveTab("notifications")} className={activeTab === "notifications" ? styles.activeTab : ""}>
+          Notifications
+          {notifications.filter(n => !n.read).length > 0 && (
+            <span className={styles.notificationBadge}>
+              {notifications.filter(n => !n.read).length}
+            </span>
+          )}
+        </button>
       </div>
       <div className={styles.tabContent}>
         {activeTab === "profile" && (
@@ -259,6 +297,38 @@ const ProfilePage = ({ onLogout }) => {
                   </li>
                 ))}
               </ul>
+            )}
+          </div>
+        )}
+        {activeTab === "notifications" && (
+          <div className={styles.notificationsSection}>
+            <h2>Notifications</h2>
+            {notifications.length === 0 ? (
+              <p className={styles.noItems}>No notifications yet.</p>
+            ) : (
+              <div className={styles.notificationsList}>
+                {notifications.map(notification => (
+                  <div 
+                    key={notification.id} 
+                    className={`${styles.notificationCard} ${!notification.read ? styles.unread : ''}`}
+                  >
+                    <div className={styles.notificationIcon}>
+                      {notification.type === 'claim' && '📢'}
+                      {notification.type === 'match' && '🔍'}
+                      {notification.type === 'approved' && '✅'}
+                    </div>
+                    <div className={styles.notificationContent}>
+                      <p className={styles.notificationMessage}>{notification.message}</p>
+                      <span className={styles.notificationTime}>
+                        {notification.timestamp.toLocaleString()}
+                      </span>
+                    </div>
+                    {!notification.read && (
+                      <div className={styles.unreadDot}></div>
+                    )}
+                  </div>
+                ))}
+              </div>
             )}
           </div>
         )}
