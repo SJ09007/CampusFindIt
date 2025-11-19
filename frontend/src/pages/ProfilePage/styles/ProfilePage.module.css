@@ -178,6 +178,8 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   overflow: hidden;
   transition: transform 0.2s, box-shadow 0.2s;
+  display: flex;
+  flex-direction: column;
 }
 
 .postCard:hover {
@@ -192,8 +194,34 @@
   background: #e2e8f0;
 }
 
+.postImagePlaceholder {
+  width: 100%;
+  height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 20px;
+}
+
+.placeholderTitle {
+  color: white;
+  font-size: 1.5rem;
+  font-weight: bold;
+  text-align: center;
+  word-wrap: break-word;
+  margin: 0;
+}
+
 .postContent {
   padding: 16px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.postInfo {
+  flex: 1;
 }
 
 .postTitle {
@@ -240,15 +268,43 @@
   font-weight: 500;
 }
 
+.descriptionWrapper {
+  margin: 12px 0;
+}
+
 .postDescription {
   font-size: 0.9rem;
   color: #4a5568;
-  margin: 12px 0;
   line-height: 1.5;
   display: -webkit-box;
-  -webkit-line-clamp: 3;
+  -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  margin: 0;
+}
+
+.postDescriptionExpanded {
+  font-size: 0.9rem;
+  color: #4a5568;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.readMoreBtn {
+  background: none;
+  border: none;
+  color: #3182ce;
+  font-size: 0.85rem;
+  cursor: pointer;
+  padding: 4px 0;
+  margin-top: 4px;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+.readMoreBtn:hover {
+  color: #2c5282;
+  text-decoration: underline;
 }
 
 .postLocation {
@@ -274,6 +330,7 @@
   font-weight: 600;
   cursor: pointer;
   transition: background 0.2s;
+  margin-top: auto;
 }
 
 .deleteBtn:hover {

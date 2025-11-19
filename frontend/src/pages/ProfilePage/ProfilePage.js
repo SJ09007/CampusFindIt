@@ -9,6 +9,7 @@ const ProfilePage = ({ onLogout }) => {
   const [myPosts, setMyPosts] = useState([]);
   const [myClaims, setMyClaims] = useState([]);
   const [activeTab, setActiveTab] = useState("profile");
+  const [expandedPosts, setExpandedPosts] = useState({});
   const [profileData, setProfileData] = useState({
     username: "",
     fullName: "",
@@ -16,6 +17,13 @@ const ProfilePage = ({ onLogout }) => {
     phone: "",
     studentId: "",
   });
+
+  const toggleDescription = (postId) => {
+    setExpandedPosts(prev => ({
+      ...prev,
+      [postId]: !prev[postId]
+    }));
+  };
 
   useEffect(() => {
     // Get user info from localStorage (stored during login/signup)
@@ -41,8 +49,17 @@ const ProfilePage = ({ onLogout }) => {
   }, []);
 
   const fetchMyPosts = () => {
-    fetch(`${API_BASE_URL}/items/getmyposted`, { credentials: "include" })
-      .then(res => res.json())
+    const token = localStorage.getItem("access_token");
+    const headers = token ? { Authorization: `Bearer ${token}` } : {};
+    
+    fetch(`${API_BASE_URL}/items/getmyposted`, { 
+      credentials: "include",
+      headers 
+    })
+      .then(res => {
+        console.log("Posts response status:", res.status);
+        return res.json();
+      })
       .then(data => {
         console.log("Fetched posts:", data);
         setMyPosts(Array.isArray(data) ? data : []);
@@ -72,9 +89,13 @@ const ProfilePage = ({ onLogout }) => {
     }
 
     try {
+      const token = localStorage.getItem("access_token");
+      const headers = token ? { Authorization: `Bearer ${token}` } : {};
+      
       const response = await fetch(`${API_BASE_URL}/items/delete/${itemId}`, {
         method: "DELETE",
         credentials: "include",
+        headers
       });
 
       if (response.ok) {
@@ -168,35 +189,59 @@ const ProfilePage = ({ onLogout }) => {
               <p className={styles.noItems}>No posts yet.</p>
             ) : (
               <div className={styles.postsGrid}>
-                {myPosts.map(post => (
-                  <div key={post._id} className={styles.postCard}>
-                    {post.images && post.images.length > 0 && (
-                      <img 
-                        src={post.images[0]} 
-                        alt={post.title} 
-                        className={styles.postImage}
-                      />
-                    )}
-                    <div className={styles.postContent}>
-                      <h3 className={styles.postTitle}>{post.title}</h3>
-                      <span className={`${styles.statusBadge} ${styles[post.status]}`}>
-                        {post.status.toUpperCase()}
-                      </span>
-                      <p className={styles.postCategory}>{post.category}</p>
-                      <p className={styles.postDescription}>{post.description}</p>
-                      <p className={styles.postLocation}>📍 {post.location}</p>
-                      <p className={styles.postDate}>
-                        {new Date(post.date).toLocaleDateString()}
-                      </p>
-                      <button 
-                        className={styles.deleteBtn}
-                        onClick={() => handleDeletePost(post._id)}
-                      >
-                        🗑️ Delete
-                      </button>
+                {myPosts.map(post => {
+                  const isExpanded = expandedPosts[post._id];
+                  const descriptionLines = post.description.split('\n').length;
+                  const isLongDescription = post.description.length > 100 || descriptionLines > 2;
+                  
+                  return (
+                    <div key={post._id} className={styles.postCard}>
+                      {post.images && post.images.length > 0 ? (
+                        <img 
+                          src={post.images[0]} 
+                          alt={post.title} 
+                          className={styles.postImage}
+                        />
+                      ) : (
+                        <div className={styles.postImagePlaceholder}>
+                          <h3 className={styles.placeholderTitle}>{post.title}</h3>
+                        </div>
+                      )}
+                      <div className={styles.postContent}>
+                        <div className={styles.postInfo}>
+                          <h3 className={styles.postTitle}>{post.title}</h3>
+                          <span className={`${styles.statusBadge} ${styles[post.status]}`}>
+                            {post.status.toUpperCase()}
+                          </span>
+                          <p className={styles.postCategory}>{post.category}</p>
+                          <div className={styles.descriptionWrapper}>
+                            <p className={isExpanded ? styles.postDescriptionExpanded : styles.postDescription}>
+                              {post.description}
+                            </p>
+                            {isLongDescription && (
+                              <button 
+                                className={styles.readMoreBtn}
+                                onClick={() => toggleDescription(post._id)}
+                              >
+                                {isExpanded ? 'Read less' : 'Read more'}
+                              </button>
+                            )}
+                          </div>
+                          <p className={styles.postLocation}>📍 {post.location}</p>
+                          <p className={styles.postDate}>
+                            {new Date(post.date).toLocaleDateString()}
+                          </p>
+                        </div>
+                        <button 
+                          className={styles.deleteBtn}
+                          onClick={() => handleDeletePost(post._id)}
+                        >
+                          🗑️ Delete
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>
