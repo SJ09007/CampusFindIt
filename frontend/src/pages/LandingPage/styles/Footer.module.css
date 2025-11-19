@@ -1,10 +1,20 @@
 .footer {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 2rem;
   padding: 2rem;
   background-color: #2c3e50;
   color: white;
+}
+
+.footerHeading {
+  text-align: left;
+  margin-bottom: 2rem;
+  font-size: 2rem;
+  color: white;
+}
+
+.footerContent {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 2rem;
 }
 
 .col h3,

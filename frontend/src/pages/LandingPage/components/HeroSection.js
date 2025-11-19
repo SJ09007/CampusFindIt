@@ -29,7 +29,11 @@ const HeroSection = () => {
         </div>
       </div>
       <div className={styles.illustration}>
-        Campus Lost & Found Illustration
+        <img 
+          src="/landing_page_illustration.png" 
+          alt="Campus Lost & Found Illustration"
+          className={styles.illustrationImage}
+        />
       </div>
     </section>
   );

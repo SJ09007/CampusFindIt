@@ -5,13 +5,26 @@ import styles from "../styles/Navbar.module.css";
 const Navbar = () => {
   const navigate = useNavigate();
 
+  const scrollToSection = (sectionId) => {
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   return (
     <nav className={styles.navbar}>
-      <div className={styles.logo}>Campus Lost & Found</div>
+      <div className={styles.logo} onClick={scrollToTop} style={{ cursor: "pointer" }}>
+        Campus Lost & Found
+      </div>
       <ul className={styles.navLinks}>
-        <li>Home</li>
-        <li>How It Works</li>
-        <li>Contact</li>
+        <li onClick={scrollToTop}>Home</li>
+        <li onClick={() => scrollToSection("how-it-works")}>How It Works</li>
+        <li onClick={() => scrollToSection("contact")}>Contact</li>
       </ul>
       <div className={styles.authButtons}>
         <button
