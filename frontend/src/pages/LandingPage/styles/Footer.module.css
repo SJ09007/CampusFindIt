@@ -36,3 +36,51 @@
 .col li:hover {
   color: #ffd700;
 }
+
+.col ul li a {
+  color: white;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.col ul li a:hover {
+  color: #ffd700;
+}
+
+.socialLinks {
+  display: flex;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+.linkedinLink {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: white;
+  text-decoration: none;
+  padding: 0.5rem 1rem;
+  background: #0077b5;
+  border-radius: 6px;
+  transition: background 0.3s ease, transform 0.2s ease;
+  font-weight: 500;
+}
+
+.linkedinLink:hover {
+  background: #005885;
+  transform: translateY(-2px);
+}
+
+.linkedinLink svg {
+  width: 20px;
+  height: 20px;
+}
+
+.footerBottom {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  text-align: center;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.9rem;
+}

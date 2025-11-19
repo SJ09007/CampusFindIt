@@ -54,11 +54,13 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  margin-top: 0;
+  margin-left: 0;
 }
 
 .illustrationImage {
   max-width: 100%;
   height: auto;
-  max-height: 400px;
+  min-height: 400px;
   object-fit: contain;
 }

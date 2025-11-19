@@ -78,6 +78,12 @@ const HomeNavbar = ({ onLogout, onFilterChange, currentFilter }) => {
       </div>
       <ul className={styles.menu}>
         <li 
+          onClick={() => window.location.href = "/"}
+          style={{ cursor: "pointer" }}
+        >
+          Home
+        </li>
+        <li 
           onClick={() => handleFilterClick("all")}
           style={{ 
             fontWeight: currentFilter === "all" ? "bold" : "normal",

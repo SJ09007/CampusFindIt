@@ -30,7 +30,7 @@ const HeroSection = () => {
       </div>
       <div className={styles.illustration}>
         <img 
-          src="/landing_page_illustration.png" 
+          src="/LPi04.jpg" 
           alt="Campus Lost & Found Illustration"
           className={styles.illustrationImage}
         />
