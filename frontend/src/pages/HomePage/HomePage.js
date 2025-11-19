@@ -2,7 +2,6 @@
 import React, { useEffect, useState } from "react";
 import styles from "./styles/HomePage.module.css";
 import HomeNavbar from "./components/HomeNavbar";
-import ReportItemForm from "./components/ReportItemForm";
 import ItemDetailModal from "./components/ItemDetailModal";
 import ItemCard from "../../components/ItemCard";
 
@@ -13,10 +12,8 @@ const HomePage = ({ onLogout }) => {
   // Read URL parameters
   const urlParams = new URLSearchParams(window.location.search);
   const initialFilter = urlParams.get("filter") || "all";
-  const initialView = urlParams.get("view") || "list";
 
   const [items, setItems] = useState([]);
-  const [currentView, setCurrentView] = useState(initialView); // 'list' or 'report'
   const [selectedItem, setSelectedItem] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -75,20 +72,6 @@ const HomePage = ({ onLogout }) => {
     fetchItems();
   };
 
-  const handleReportSuccess = () => {
-    console.log("Report submitted successfully. Switching to list view.");
-    fetchItems();
-    setCurrentView("list");
-  };
-
-  const handleNavigate = (view) => {
-    console.log(`Navigating to view: ${view}`);
-    setCurrentView(view);
-    if (view === "report") {
-      setSelectedItem(null); // Reset selected item to avoid conflicts
-    }
-  };
-
   const handleFilterChange = (filterType) => {
     console.log(`Filter changed to: ${filterType}`);
     setFilter(filterType);
@@ -97,14 +80,12 @@ const HomePage = ({ onLogout }) => {
   return (
     <div className={styles.pageContainer}>
       <HomeNavbar 
-        onNavigate={handleNavigate} 
         onLogout={onLogout}
         onFilterChange={handleFilterChange}
         currentFilter={filter}
       />
 
-      {currentView === "list" && (
-        <>
+      <>
           <div className={styles.header}>
             <h1 className={styles.title}>Campus Lost & Found</h1>
             <div className={styles.searchContainer}>
@@ -182,20 +163,7 @@ const HomePage = ({ onLogout }) => {
               )}
             </>
           )}
-        </>
-      )}
-
-      {currentView === "report" && (
-        <div className={styles.section}>
-          <button
-            className={styles.backBtn}
-            onClick={() => setCurrentView("list")}
-          >
-            ◀ Back to List
-          </button>
-          <ReportItemForm key={Date.now()} onSuccess={handleReportSuccess} />
-        </div>
-      )}
+      </>
 
       {selectedItem && (
         <ItemDetailModal

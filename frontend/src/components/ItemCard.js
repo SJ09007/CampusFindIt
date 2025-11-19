@@ -44,7 +44,7 @@ const ItemCard = ({ item, onClick }) => {
       }}
     >
       <div className={styles.cardImageWrap}>
-        {item.status !== "lost" ? (
+        {rawUrl ? (
           <img
             src={thumbnail}
             alt={item.title}
@@ -66,7 +66,7 @@ const ItemCard = ({ item, onClick }) => {
           <span
             className={styles.statusPill}
             style={{
-              backgroundColor: item.status === "lost" ? "#fed7d7" : "#c6f6d5",
+              backgroundColor: item.status === "lost" ? "#ffe6e6ff" : "#c6f6d5",
               color: item.status === "lost" ? "#e53e3e" : "#38a169",
             }}
           >

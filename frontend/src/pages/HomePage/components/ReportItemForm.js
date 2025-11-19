@@ -42,7 +42,7 @@ const ReportItemForm = ({ onSuccess }) => {
 
   const handleFileChange = (e) => {
     const files = Array.from(e.target.files || []);
-    const sliced = files.slice(0, 5);
+    const sliced = files.slice(0, 1); // Only allow 1 image
     setImageFiles(sliced);
     setMessage({ type: "", text: "" });
   };
@@ -54,7 +54,7 @@ const ReportItemForm = ({ onSuccess }) => {
     if (!formData.status) return "Status is required";
     if (!formData.location.trim()) return "Location is required";
     if (formData.status === "found" && imageFiles.length === 0) {
-      return "Please upload at least one image for found items.";
+      return "Please upload an image for found items.";
     }
     return null;
   };
@@ -260,24 +260,21 @@ const ReportItemForm = ({ onSuccess }) => {
           />
         </div>
 
-        {formData.status === "found" && (
-          <div className={styles.row}>
-            <label className={styles.label}>
-              Images (required)
-            </label>
-            <input
-              type="file"
-              accept="image/*"
-              multiple
-              onChange={handleFileChange}
-            />
-            <div className={styles.hint}>
-              You can upload up to 5 images. Max size 6MB each.
-            </div>
+        <div className={styles.row}>
+          <label className={styles.label}>
+            Image {formData.status === "found" ? "(required)" : "(optional)"}
+          </label>
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleFileChange}
+          />
+          <div className={styles.hint}>
+            You can upload 1 image. Max size 6MB.
           </div>
-        )}
+        </div>
 
-        {formData.status === "found" && previews && previews.length > 0 && (
+        {previews && previews.length > 0 && (
           <div className={styles.previewWrapper}>
             {previews.map((src, i) => (
               <div key={i} className={styles.previewItem}>

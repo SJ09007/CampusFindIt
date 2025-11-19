@@ -3,12 +3,26 @@ import styles from "../styles/HomeNavbar.module.css";
 
 /**
  * @param {object} props
- * @param {function} props.onNavigate - Function to switch the view between 'list' and 'report' in HomePage.
  * @param {function} props.onLogout - Function to log the user out and redirect to the landing page (comes from App.js).
  * @param {function} props.onFilterChange - Function to change the filter between 'all', 'lost', and 'found'.
  * @param {string} props.currentFilter - Current filter state ('all', 'lost', or 'found').
  */
-const HomeNavbar = ({ onNavigate, onLogout, onFilterChange, currentFilter }) => {
+const HomeNavbar = ({ onLogout, onFilterChange, currentFilter }) => {
+  // Get user initial from localStorage
+  const getUserInitial = () => {
+    const userInfo = localStorage.getItem("user_info");
+    if (userInfo) {
+      try {
+        const userData = JSON.parse(userInfo);
+        const username = userData.username || "";
+        return username ? username[0].toUpperCase() : "U";
+      } catch (err) {
+        return "U";
+      }
+    }
+    return "U";
+  };
+
   const handleFilterClick = (filterType) => {
     if (onFilterChange) {
       // If on HomePage, use the filter function
@@ -20,13 +34,8 @@ const HomeNavbar = ({ onNavigate, onLogout, onFilterChange, currentFilter }) => 
   };
 
   const handleReportClick = () => {
-    if (onNavigate) {
-      // If on HomePage, use the navigate function
-      onNavigate("report");
-    } else {
-      // If on other pages, navigate to home with report view
-      window.location.href = "/home?view=report";
-    }
+    // Navigate to the report item page
+    window.location.href = "/report-item";
   };
 
   return (
@@ -82,7 +91,9 @@ const HomeNavbar = ({ onNavigate, onLogout, onFilterChange, currentFilter }) => 
           className={styles.avatar}
           onClick={() => (window.location.href = "/profile")}
           style={{ cursor: "pointer" }}
-        ></div>
+        >
+          {getUserInitial()}
+        </div>
         <span
           style={{ cursor: "pointer" }}
           onClick={() => (window.location.href = "/profile")}

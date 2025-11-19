@@ -9,7 +9,6 @@ const ProfilePage = ({ onLogout }) => {
   const [myPosts, setMyPosts] = useState([]);
   const [myClaims, setMyClaims] = useState([]);
   const [activeTab, setActiveTab] = useState("profile");
-  const [isEditing, setIsEditing] = useState(false);
   const [profileData, setProfileData] = useState({
     username: "",
     fullName: "",
@@ -19,11 +18,23 @@ const ProfilePage = ({ onLogout }) => {
   });
 
   useEffect(() => {
-    // Fetch user's profile data
-    fetch(`${API_BASE_URL}/user/profile`, { credentials: "include" })
-      .then(res => res.json())
-      .then(data => setProfileData(data || {}))
-      .catch(err => console.error("Error fetching profile data:", err));
+    // Get user info from localStorage (stored during login/signup)
+    const userInfo = localStorage.getItem("user_info");
+    if (userInfo) {
+      try {
+        const userData = JSON.parse(userInfo);
+        console.log("User data from localStorage:", userData); // Debug log
+        setProfileData({
+          username: userData.username || "",
+          fullName: userData.fullName || userData.fullname || userData.name || "",
+          email: userData.email || "",
+          phone: userData.phone || userData.phonenumber || userData.contactNumber || userData.phoneNumber || "",
+          studentId: userData.studentId || userData.enrollmentNumber || userData.enrollment_number || "",
+        });
+      } catch (err) {
+        console.error("Error parsing user info:", err);
+      }
+    }
 
     // Fetch user's posts and claims
     fetch(`${API_BASE_URL}/user/myposts`, { credentials: "include" })
@@ -41,32 +52,6 @@ const ProfilePage = ({ onLogout }) => {
     window.location.href = "/home";
   };
 
-  const handleEditToggle = () => {
-    setIsEditing(!isEditing);
-  };
-
-  const handleSaveChanges = () => {
-    // Save profile changes
-    fetch(`${API_BASE_URL}/user/profile`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      credentials: "include",
-      body: JSON.stringify(profileData),
-    })
-      .then(res => res.json())
-      .then(data => {
-        setIsEditing(false);
-        setProfileData(data);
-      });
-  };
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setProfileData({ ...profileData, [name]: value });
-  };
-
   return (
     <div className={styles.profileContainer}>
       <HomeNavbar onNavigate={handleNavigate} onLogout={onLogout} />
@@ -79,15 +64,17 @@ const ProfilePage = ({ onLogout }) => {
       <div className={styles.tabContent}>
         {activeTab === "profile" && (
           <div className={styles.profileDetails}>
-            <div className={styles.avatar}>{profileData.username[0]}</div>
+            <div className={styles.avatar}>
+              {profileData.username ? profileData.username[0].toUpperCase() : "U"}
+            </div>
             <div className={styles.fieldGroup}>
               <label>Username:</label>
               <input
                 type="text"
                 name="username"
                 value={profileData.username}
-                onChange={handleInputChange}
-                disabled={!isEditing}
+                readOnly
+                disabled
               />
             </div>
             <div className={styles.fieldGroup}>
@@ -96,8 +83,8 @@ const ProfilePage = ({ onLogout }) => {
                 type="text"
                 name="fullName"
                 value={profileData.fullName}
-                onChange={handleInputChange}
-                disabled={!isEditing}
+                readOnly
+                disabled
               />
             </div>
             <div className={styles.fieldGroup}>
@@ -106,8 +93,8 @@ const ProfilePage = ({ onLogout }) => {
                 type="email"
                 name="email"
                 value={profileData.email}
-                onChange={handleInputChange}
-                disabled={!isEditing}
+                readOnly
+                disabled
               />
             </div>
             <div className={styles.fieldGroup}>
@@ -116,8 +103,8 @@ const ProfilePage = ({ onLogout }) => {
                 type="text"
                 name="phone"
                 value={profileData.phone}
-                onChange={handleInputChange}
-                disabled={!isEditing}
+                readOnly
+                disabled
               />
             </div>
             <div className={styles.fieldGroup}>
@@ -126,13 +113,9 @@ const ProfilePage = ({ onLogout }) => {
                 type="text"
                 name="studentId"
                 value={profileData.studentId}
-                onChange={handleInputChange}
-                disabled={!isEditing}
+                readOnly
+                disabled
               />
-            </div>
-            <div className={styles.buttonGroup}>
-              <button onClick={handleEditToggle} className={styles.editBtn}>{isEditing ? "Cancel" : "Edit Profile"}</button>
-              {isEditing && <button onClick={handleSaveChanges} className={styles.saveBtn}>Save Changes</button>}
             </div>
           </div>
         )}
