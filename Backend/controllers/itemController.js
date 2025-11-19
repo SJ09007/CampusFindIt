@@ -10,7 +10,7 @@ const streamifier = require("streamifier");
  */
 const createItem = async (req, res) => {
   try {
-    const { title, description, category, status, location, date } = req.body;
+    const { title, description, category, status, location, date, contactEmail, contactPhone } = req.body;
 
     // Validate fields
     if (!title || !description || !category || !status || !location) {
@@ -70,6 +70,8 @@ const createItem = async (req, res) => {
       date: date ? new Date(date) : new Date(),
       postedBy: req.user.id,
       images: uploadedUrls,
+      contactEmail: contactEmail || undefined, // Optional contact email
+      contactPhone: contactPhone || undefined, // Optional contact phone
     });
 
     await item.save();

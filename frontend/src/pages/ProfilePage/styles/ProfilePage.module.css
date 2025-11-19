@@ -372,12 +372,15 @@
   border-radius: 8px;
   padding: 16px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  transition: box-shadow 0.2s;
+  transition: all 0.2s;
   position: relative;
+  cursor: pointer;
 }
 
 .notificationCard:hover {
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  transform: translateY(-2px);
+  background: #f7fafc;
 }
 
 .notificationCard.unread {
@@ -412,4 +415,290 @@
   background: #3182ce;
   border-radius: 50%;
   flex-shrink: 0;
+}
+
+/* Claims Management Styles */
+.claimsSection {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.viewClaimsBtn {
+  width: 100%;
+  background: #ebf8ff;
+  color: #2c5282;
+  border: 2px solid #bee3f8;
+  border-radius: 6px;
+  padding: 10px 16px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.viewClaimsBtn:hover {
+  background: #bee3f8;
+  border-color: #90cdf4;
+}
+
+.claimsList {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.noClaims {
+  text-align: center;
+  color: #718096;
+  padding: 16px;
+  font-size: 0.9rem;
+}
+
+.claimCard {
+  background: #f7fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.claimHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.claimerName {
+  font-weight: 600;
+  color: #2d3748;
+  font-size: 0.9rem;
+}
+
+.claimStatus {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 10px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.claimStatus.pending {
+  background: #feebc8;
+  color: #c05621;
+}
+
+.claimStatus.approved {
+  background: #c6f6d5;
+  color: #2f855a;
+}
+
+.claimStatus.rejected {
+  background: #fed7d7;
+  color: #c53030;
+}
+
+.claimDetails {
+  font-size: 0.85rem;
+  color: #4a5568;
+  line-height: 1.6;
+}
+
+.claimDetails p {
+  margin: 6px 0;
+}
+
+.claimDetails strong {
+  color: #2d3748;
+}
+
+.claimTime {
+  font-size: 0.75rem;
+  color: #a0aec0;
+  margin-top: 8px;
+}
+
+.claimActions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.approveBtn {
+  flex: 1;
+  background: #38a169;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.approveBtn:hover {
+  background: #2f855a;
+}
+
+.rejectBtn {
+  flex: 1;
+  background: #e53e3e;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.rejectBtn:hover {
+  background: #c53030;
+}
+
+.contactInfo {
+  margin-top: 12px;
+  padding: 12px;
+  background: #c6f6d5;
+  border-radius: 6px;
+  border: 1px solid #9ae6b4;
+}
+
+.contactInfo h4 {
+  margin: 0 0 8px 0;
+  color: #2f855a;
+  font-size: 0.9rem;
+}
+
+.contactInfo p {
+  margin: 4px 0;
+  font-size: 0.85rem;
+  color: #22543d;
+}
+
+.contactInfo strong {
+  font-weight: 600;
+}
+
+/* My Claims Tab Styles */
+.claimsTabSection {
+  padding: 16px 0;
+}
+
+.claimsTabSection h2 {
+  font-size: 1.5rem;
+  margin-bottom: 24px;
+  color: #2d3748;
+}
+
+.myClaimsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 24px;
+}
+
+.myClaimCard {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.myClaimCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+.myClaimHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  background: #f7fafc;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.myClaimTitle {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #2d3748;
+  margin: 0;
+  flex: 1;
+}
+
+.myClaimImage {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  background: #e2e8f0;
+}
+
+.myClaimDetails {
+  padding: 16px;
+  font-size: 0.9rem;
+  color: #4a5568;
+  line-height: 1.6;
+}
+
+.myClaimDetails p {
+  margin: 8px 0;
+}
+
+.myClaimDetails strong {
+  color: #2d3748;
+}
+
+.ownerContactInfo {
+  margin: 16px;
+  padding: 16px;
+  background: #c6f6d5;
+  border-radius: 8px;
+  border: 2px solid #9ae6b4;
+}
+
+.ownerContactInfo h4 {
+  margin: 0 0 12px 0;
+  color: #2f855a;
+  font-size: 1rem;
+}
+
+.ownerContactInfo p {
+  margin: 6px 0;
+  font-size: 0.9rem;
+  color: #22543d;
+}
+
+.ownerContactInfo strong {
+  font-weight: 600;
+}
+
+.pendingNote {
+  margin: 16px;
+  padding: 12px;
+  background: #feebc8;
+  color: #c05621;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.rejectedNote {
+  margin: 16px;
+  padding: 12px;
+  background: #fed7d7;
+  color: #c53030;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-align: center;
 }

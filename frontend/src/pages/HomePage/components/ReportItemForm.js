@@ -52,6 +52,8 @@ const ReportItemForm = ({ onSuccess }) => {
     status: "lost",
     location: "",
     date: new Date().toISOString().slice(0, 10),
+    contactEmail: "",
+    contactPhone: "",
   });
 
   const [imageFiles, setImageFiles] = useState([]); // File objects
@@ -171,6 +173,10 @@ const ReportItemForm = ({ onSuccess }) => {
       fd.append("status", formData.status);
       fd.append("location", formData.location);
       fd.append("date", formData.date);
+      
+      // Add contact info if provided
+      if (formData.contactEmail) fd.append("contactEmail", formData.contactEmail);
+      if (formData.contactPhone) fd.append("contactPhone", formData.contactPhone);
 
       imageFiles.forEach((file) => fd.append("images", file));
 
@@ -218,6 +224,8 @@ const ReportItemForm = ({ onSuccess }) => {
         status: "lost",
         location: "",
         date: new Date().toISOString().slice(0, 10),
+        contactEmail: "",
+        contactPhone: "",
       });
       setImageFiles([]);
       // Let parent (HomePage) refresh list
@@ -402,6 +410,36 @@ const ReportItemForm = ({ onSuccess }) => {
             onChange={handleChange}
             max={new Date().toISOString().slice(0, 10)}
           />
+        </div>
+
+        <div className={styles.row}>
+          <label className={styles.label}>Contact Email (optional)</label>
+          <input
+            className={styles.input}
+            type="email"
+            name="contactEmail"
+            value={formData.contactEmail}
+            onChange={handleChange}
+            placeholder="Your preferred contact email"
+          />
+          <div className={styles.hint}>
+            ⚠️ This will only be shared with approved claimants. Leave blank to use your account email.
+          </div>
+        </div>
+
+        <div className={styles.row}>
+          <label className={styles.label}>Contact Phone (optional)</label>
+          <input
+            className={styles.input}
+            type="tel"
+            name="contactPhone"
+            value={formData.contactPhone}
+            onChange={handleChange}
+            placeholder="Your preferred contact number"
+          />
+          <div className={styles.hint}>
+            ⚠️ This will only be shared with approved claimants.
+          </div>
         </div>
 
         <div className={styles.row}>

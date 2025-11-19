@@ -57,6 +57,15 @@ const itemSchema = new mongoose.Schema(
       type: [String],
       default: [], // not required at DB level; enforce per-status in controller
     },
+    // Contact information (optional - for privacy)
+    contactEmail: {
+      type: String,
+      // Optional: if not provided, will use user's account email
+    },
+    contactPhone: {
+      type: String,
+      // Optional: if not provided, will use user's account phone
+    },
   },
   {
     timestamps: true,
