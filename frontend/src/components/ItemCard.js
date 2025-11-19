@@ -43,8 +43,8 @@ const ItemCard = ({ item, onClick }) => {
           item.status === "lost" ? "4px solid #e53e3e" : "4px solid #38a169",
       }}
     >
-      {item.status !== "lost" && (
-        <div className={styles.cardImageWrap}>
+      <div className={styles.cardImageWrap}>
+        {item.status !== "lost" ? (
           <img
             src={thumbnail}
             alt={item.title}
@@ -53,8 +53,12 @@ const ItemCard = ({ item, onClick }) => {
               e.target.src = "/placeholder.png";
             }}
           />
-        </div>
-      )}
+        ) : (
+          <div className={styles.lostItemPlaceholder}>
+            <h3 className={styles.lostItemTitle}>{item.title}</h3>
+          </div>
+        )}
+      </div>
 
       <div className={styles.cardBody}>
         <div className={styles.cardHeader}>
