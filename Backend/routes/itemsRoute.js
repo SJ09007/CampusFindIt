@@ -17,6 +17,7 @@ const {
   claimFoundItem,
   reportLostItem,
   approveClaimOrReport,
+  deleteItem,
 } = require("../controllers/itemController");
 
 /**
@@ -69,5 +70,10 @@ router.post("/report/:id", isAuthenticted, reportLostItem);
  * Approve claim/report
  */
 router.post("/approve/:id", isAuthenticted, approveClaimOrReport);
+
+/**
+ * Delete item
+ */
+router.delete("/delete/:id", isAuthenticted, deleteItem);
 
 module.exports = router;
