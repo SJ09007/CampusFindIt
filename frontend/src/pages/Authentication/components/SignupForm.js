@@ -32,6 +32,19 @@ const SignupForm = ({ onToggleForm }) => {
     setError(null);
     setLoading(true);
 
+    // Client-side validation
+    if (formData.phonenumber && formData.phonenumber.length !== 10) {
+      setError("❌ Phone number must be exactly 10 digits.");
+      setLoading(false);
+      return;
+    }
+
+    if (formData.password.length < 8) {
+      setError("❌ Password must be at least 8 characters long.");
+      setLoading(false);
+      return;
+    }
+
     try {
       const response = await fetch(API_URL, {
         method: "POST",
@@ -44,7 +57,23 @@ const SignupForm = ({ onToggleForm }) => {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || data.error || "Registration failed.");
+        // Enhanced error messages
+        let errorMessage = data.message || data.error || "Registration failed.";
+        
+        // Provide more specific error messages
+        if (errorMessage.toLowerCase().includes("already exists") || errorMessage.toLowerCase().includes("already registered")) {
+          errorMessage = "❌ This email is already registered. Please login instead.";
+        } else if (errorMessage.toLowerCase().includes("username")) {
+          errorMessage = "❌ This username is already taken. Please choose another.";
+        } else if (errorMessage.toLowerCase().includes("phone")) {
+          errorMessage = "❌ Please enter a valid 10-digit phone number.";
+        } else if (errorMessage.toLowerCase().includes("password")) {
+          errorMessage = "❌ Password must contain at least 8 characters, including uppercase, lowercase, number, and symbol.";
+        } else if (errorMessage.toLowerCase().includes("email")) {
+          errorMessage = "❌ Please enter a valid email address.";
+        }
+        
+        throw new Error(errorMessage);
       }
 
       // Navigate to OTP page with email
@@ -135,9 +164,9 @@ const SignupForm = ({ onToggleForm }) => {
       />
 
       {error && (
-        <p style={{ color: "red", fontSize: "0.9rem", textAlign: "center" }}>
+        <div className={styles.errorMessage}>
           {error}
-        </p>
+        </div>
       )}
 
       <button type="submit" className={styles.submitBtn} disabled={loading}>

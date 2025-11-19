@@ -3,7 +3,6 @@ import { useLocation } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import HeroSection from "./components/HeroSection";
 import HowItWorks from "./components/HowItWorks";
-import StatsSection from "./components/StatsSection";
 import CTASection from "./components/CTASection";
 import Footer from "./components/Footer";
 
@@ -26,7 +25,6 @@ const LandingPage = () => {
       <Navbar />
       <HeroSection />
       <HowItWorks />
-      <StatsSection />
       <CTASection />
       <Footer />
     </>

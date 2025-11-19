@@ -89,9 +89,10 @@ const HomePage = ({ onLogout }) => {
           <div className={styles.header}>
             <h1 className={styles.title}>Campus Lost & Found</h1>
             <div className={styles.searchContainer}>
+              <span className={styles.searchIcon}>🔍</span>
               <input
                 type="text"
-                placeholder="Search by item name or category..."
+                placeholder="Search item"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className={styles.searchInput}
