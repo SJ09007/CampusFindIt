@@ -324,6 +324,35 @@ const approveClaimOrReport = async (req, res) => {
   }
 };
 
+/**
+ * Delete an item posted by the logged-in user
+ */
+const deleteItem = async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (!req.user) return res.status(401).json({ message: "Unauthorized" });
+
+    const item = await Item.findById(id);
+    if (!item) return res.status(404).json({ message: "Item not found" });
+
+    // Verify the user owns this item
+    if (item.postedBy.toString() !== req.user.id) {
+      return res.status(403).json({ message: "You can only delete your own items" });
+    }
+
+    // Delete associated claims/reports
+    await ClaimedItem.deleteMany({ itemId: id });
+
+    // Delete the item
+    await Item.findByIdAndDelete(id);
+
+    res.status(200).json({ message: "Item deleted successfully" });
+  } catch (err) {
+    console.error("deleteItem error:", err);
+    res.status(500).json({ message: err.message });
+  }
+};
+
 module.exports = {
   createItem,
   getAllItems,
@@ -337,4 +366,5 @@ module.exports = {
   claimFoundItem,
   reportLostItem,
   approveClaimOrReport,
+  deleteItem,
 };

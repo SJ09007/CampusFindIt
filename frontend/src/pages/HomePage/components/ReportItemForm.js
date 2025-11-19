@@ -1,8 +1,48 @@
 // ReportItemForm.js
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
+import Cropper from "react-easy-crop";
 import styles from "../styles/ReportItemForm.module.css"; // adjust if your styles path differs
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE || "http://localhost:3100";
+
+const MAX_WIDTH = 800;
+const MAX_HEIGHT = 800;
+
+// Utility function to create cropped image
+const getCroppedImg = async (imageSrc, pixelCrop) => {
+  const image = await createImage(imageSrc);
+  const canvas = document.createElement("canvas");
+  const ctx = canvas.getContext("2d");
+
+  canvas.width = pixelCrop.width;
+  canvas.height = pixelCrop.height;
+
+  ctx.drawImage(
+    image,
+    pixelCrop.x,
+    pixelCrop.y,
+    pixelCrop.width,
+    pixelCrop.height,
+    0,
+    0,
+    pixelCrop.width,
+    pixelCrop.height
+  );
+
+  return new Promise((resolve) => {
+    canvas.toBlob((blob) => {
+      resolve(blob);
+    }, "image/jpeg");
+  });
+};
+
+const createImage = (url) =>
+  new Promise((resolve, reject) => {
+    const image = new Image();
+    image.addEventListener("load", () => resolve(image));
+    image.addEventListener("error", (error) => reject(error));
+    image.src = url;
+  });
 
 const ReportItemForm = ({ onSuccess }) => {
   const [formData, setFormData] = useState({
@@ -18,6 +58,13 @@ const ReportItemForm = ({ onSuccess }) => {
   const [previews, setPreviews] = useState([]); // preview URLs
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ type: "", text: "" });
+  
+  // Cropper state
+  const [showCropper, setShowCropper] = useState(false);
+  const [imageToCrop, setImageToCrop] = useState(null);
+  const [crop, setCrop] = useState({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
 
   useEffect(() => {
     // create object URLs for previews
@@ -42,9 +89,54 @@ const ReportItemForm = ({ onSuccess }) => {
 
   const handleFileChange = (e) => {
     const files = Array.from(e.target.files || []);
-    const sliced = files.slice(0, 1); // Only allow 1 image
-    setImageFiles(sliced);
+    if (files.length === 0) return;
+    
+    const file = files[0];
+    const reader = new FileReader();
+    
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onload = () => {
+        // Check if image needs cropping
+        if (img.width > MAX_WIDTH || img.height > MAX_HEIGHT) {
+          setImageToCrop(event.target.result);
+          setShowCropper(true);
+        } else {
+          // Image is small enough, use it directly
+          setImageFiles([file]);
+        }
+      };
+      img.src = event.target.result;
+    };
+    
+    reader.readAsDataURL(file);
     setMessage({ type: "", text: "" });
+  };
+
+  const onCropComplete = useCallback((croppedArea, croppedAreaPixels) => {
+    setCroppedAreaPixels(croppedAreaPixels);
+  }, []);
+
+  const createCroppedImage = async () => {
+    try {
+      const croppedBlob = await getCroppedImg(imageToCrop, croppedAreaPixels);
+      const croppedFile = new File([croppedBlob], "cropped-image.jpg", {
+        type: "image/jpeg",
+      });
+      setImageFiles([croppedFile]);
+      setShowCropper(false);
+      setImageToCrop(null);
+    } catch (e) {
+      console.error("Error cropping image:", e);
+      setMessage({ type: "error", text: "Failed to crop image" });
+    }
+  };
+
+  const cancelCrop = () => {
+    setShowCropper(false);
+    setImageToCrop(null);
+    setCrop({ x: 0, y: 0 });
+    setZoom(1);
   };
 
   const validateBeforeSubmit = () => {
@@ -149,6 +241,58 @@ const ReportItemForm = ({ onSuccess }) => {
           }`}
         >
           {message.text}
+        </div>
+      )}
+
+      {showCropper && (
+        <div className={styles.cropperModal}>
+          <div className={styles.cropperContainer}>
+            <h3>Crop Your Image</h3>
+            <p className={styles.cropperHint}>
+              Your image is larger than {MAX_WIDTH}x{MAX_HEIGHT}px. Please crop it to reduce file size.
+            </p>
+            <div className={styles.cropperWrapper}>
+              <Cropper
+                image={imageToCrop}
+                crop={crop}
+                zoom={zoom}
+                aspect={4 / 3}
+                onCropChange={setCrop}
+                onZoomChange={setZoom}
+                onCropComplete={onCropComplete}
+              />
+            </div>
+            <div className={styles.cropperControls}>
+              <label className={styles.zoomLabel}>
+                Zoom:
+                <input
+                  type="range"
+                  min={1}
+                  max={3}
+                  step={0.1}
+                  value={zoom}
+                  onChange={(e) => setZoom(e.target.value)}
+                  className={styles.zoomSlider}
+                />
+              </label>
+              <div className={styles.cropperButtons}>
+                <button
+                  type="button"
+                  onClick={cancelCrop}
+                  className={styles.cancelCropBtn}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={createCroppedImage}
+                  className={styles.applyCropBtn}
+                >
+                  Apply Crop
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       )}
 
