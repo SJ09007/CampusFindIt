@@ -6,6 +6,12 @@
   padding: 0 30px;
   border-bottom: 1px solid #ccc;
   background: white;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  box-sizing: border-box;
 }
 
 .logo {
