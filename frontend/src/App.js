@@ -9,6 +9,7 @@ import {
 import LandingPage from "./pages/LandingPage/LandingPage";
 import AuthenticationPage from "./pages/Authentication/AuthenticationPage";
 import HomePage from "./pages/HomePage/HomePage";
+import ReportItemPage from "./pages/ReportItemPage/ReportItemPage";
 import LostItemsPage from "./pages/LostItemsPage/LostItemsPage";
 import FoundItemsPage from "./pages/FoundItemsPage/FoundItemsPage";
 import BrowseItemsPage from "./pages/BrowseItemsPage/BrowseItemsPage";
@@ -61,6 +62,14 @@ function App() {
           element={
             <PrivateRoute>
               <HomePage onLogout={handleLogout} />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/report-item"
+          element={
+            <PrivateRoute>
+              <ReportItemPage onLogout={handleLogout} />
             </PrivateRoute>
           }
         />
