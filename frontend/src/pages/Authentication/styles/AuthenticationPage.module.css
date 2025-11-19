@@ -21,7 +21,7 @@
   border-radius: 12px;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
   overflow: hidden;
-  height: 500px; /* Example fixed height for the two-panel look */
+  height: 650px; /* Increased height to accommodate all form fields */
   margin-top: 50px; /* Add some margin from the top padding */
   margin-bottom: 50px;
 }

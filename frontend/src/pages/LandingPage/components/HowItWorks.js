@@ -3,7 +3,7 @@ import styles from "../styles/HowItWorks.module.css";
 
 const HowItWorks = () => {
   return (
-    <section className={styles.howItWorks}>
+    <section id="how-it-works" className={styles.howItWorks}>
       <h2>How It Works</h2>
       <p>Simple steps to reunite lost items with their owners</p>
       <div className={styles.steps}>
