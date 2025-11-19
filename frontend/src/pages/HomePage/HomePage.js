@@ -15,6 +15,8 @@ const HomePage = ({ onLogout }) => {
   const [selectedItem, setSelectedItem] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [filter, setFilter] = useState("all"); // 'all', 'lost', 'found'
+  const [searchQuery, setSearchQuery] = useState("");
 
   const fetchItems = async () => {
     setLoading(true);
@@ -38,8 +40,17 @@ const HomePage = ({ onLogout }) => {
     fetchItems();
   }, []);
 
-  const lostItems = items.filter((i) => i.status === "lost");
-  const foundItems = items.filter((i) => i.status === "found");
+  // Filter items by search query
+  const filteredItems = items.filter((item) => {
+    const matchesSearch = 
+      item.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.category?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.description?.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesSearch;
+  });
+
+  const lostItems = filteredItems.filter((i) => i.status === "lost");
+  const foundItems = filteredItems.filter((i) => i.status === "found");
 
   const openModal = (item) => setSelectedItem(item);
   const closeModal = () => setSelectedItem(null);
@@ -63,24 +74,40 @@ const HomePage = ({ onLogout }) => {
     }
   };
 
+  const handleFilterChange = (filterType) => {
+    console.log(`Filter changed to: ${filterType}`);
+    setFilter(filterType);
+  };
+
   return (
     <div className={styles.pageContainer}>
-      <HomeNavbar onNavigate={handleNavigate} onLogout={onLogout} />
+      <HomeNavbar 
+        onNavigate={handleNavigate} 
+        onLogout={onLogout}
+        onFilterChange={handleFilterChange}
+        currentFilter={filter}
+      />
 
       {currentView === "list" && (
         <>
           <div className={styles.header}>
             <h1 className={styles.title}>Campus Lost & Found</h1>
-            <div className={styles.headerActions}>
-              <button
-                className={styles.primary}
-                onClick={() => setCurrentView("report")}
-              >
-                Report Item
-              </button>
-              <button className={styles.secondary} onClick={fetchItems}>
-                Refresh
-              </button>
+            <div className={styles.searchContainer}>
+              <input
+                type="text"
+                placeholder="Search by item name or category..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className={styles.searchInput}
+              />
+              {searchQuery && (
+                <button
+                  className={styles.clearBtn}
+                  onClick={() => setSearchQuery("")}
+                >
+                  ✕
+                </button>
+              )}
             </div>
           </div>
 
@@ -91,29 +118,33 @@ const HomePage = ({ onLogout }) => {
 
           {!loading && !error && (
             <>
-              <section className={styles.section}>
-                <h2 className={styles.sectionTitle}>Found Items</h2>
-                <div className={styles.grid}>
-                  {foundItems.length === 0 && (
-                    <p className={styles.emptyText}>No found items yet.</p>
-                  )}
-                  {foundItems.map((item) => (
-                    <ItemCard key={item._id} item={item} onClick={openModal} />
-                  ))}
-                </div>
-              </section>
+              {(filter === "all" || filter === "found") && (
+                <section className={styles.section}>
+                  <h2 className={styles.sectionTitle}>Found Items</h2>
+                  <div className={styles.grid}>
+                    {foundItems.length === 0 && (
+                      <p className={styles.emptyText}>No found items yet.</p>
+                    )}
+                    {foundItems.map((item) => (
+                      <ItemCard key={item._id} item={item} onClick={openModal} />
+                    ))}
+                  </div>
+                </section>
+              )}
 
-              <section className={styles.section}>
-                <h2 className={styles.sectionTitle}>Lost Items</h2>
-                <div className={styles.grid}>
-                  {lostItems.length === 0 && (
-                    <p className={styles.emptyText}>No lost items yet.</p>
-                  )}
-                  {lostItems.map((item) => (
-                    <ItemCard key={item._id} item={item} onClick={openModal} />
-                  ))}
-                </div>
-              </section>
+              {(filter === "all" || filter === "lost") && (
+                <section className={styles.section}>
+                  <h2 className={styles.sectionTitle}>Lost Items</h2>
+                  <div className={styles.grid}>
+                    {lostItems.length === 0 && (
+                      <p className={styles.emptyText}>No lost items yet.</p>
+                    )}
+                    {lostItems.map((item) => (
+                      <ItemCard key={item._id} item={item} onClick={openModal} />
+                    ))}
+                  </div>
+                </section>
+              )}
             </>
           )}
         </>
