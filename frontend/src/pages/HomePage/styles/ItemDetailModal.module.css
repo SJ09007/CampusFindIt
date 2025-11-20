@@ -164,8 +164,9 @@
   margin-top: 0;
   margin-bottom: 12px;
   font-size: 1.8rem;
-  color: #1e3a8a;
+  color: #1e3a8a !important;
   font-weight: 700;
+  text-shadow: none !important;
 }
 
 .right p {

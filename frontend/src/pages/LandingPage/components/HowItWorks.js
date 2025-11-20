@@ -10,40 +10,62 @@ const HowItWorks = () => {
         <div className={styles.step}>
           <div className={styles.stepNumber}>1</div>
           <h3>📝 Report Your Item</h3>
-          <p>Create an account and report your lost or found item with photos, description, location, and date. Your contact info stays private.</p>
+          <p>
+            Create an account and report your lost or found item with photos,
+            description, location, and date. Your contact info stays private.
+          </p>
         </div>
         <div className={styles.step}>
           <div className={styles.stepNumber}>2</div>
           <h3>🔍 Browse & Search</h3>
-          <p>Search through posted items by category, location, or date. Found something that matches? Click to view details and submit a claim.</p>
+          <p>
+            Search through posted items by category, location, or date. Found
+            something that matches? Click to view details and submit a claim.
+          </p>
         </div>
         <div className={styles.step}>
           <div className={styles.stepNumber}>3</div>
           <h3>✅ Submit a Claim</h3>
-          <p>Prove ownership by providing details about the item. For found items, describe where and when you found it. Claims are sent to the owner for review.</p>
+          <p>
+            Prove ownership by providing details about the item. For found
+            items, describe where and when you found it. Claims are sent to the
+            owner for review.
+          </p>
         </div>
         <div className={styles.step}>
           <div className={styles.stepNumber}>4</div>
           <h3>🔔 Get Notified</h3>
-          <p>Receive instant email and in-app notifications when someone claims your item or when your claim is reviewed by the owner.</p>
+          <p>
+            Receive instant email and in-app notifications when someone claims
+            your item or when your claim is reviewed by the owner.
+          </p>
         </div>
         <div className={styles.step}>
           <div className={styles.stepNumber}>5</div>
           <h3>👍 Review Claims</h3>
-          <p>Item owners review all claims in their profile. Approve legitimate claims to share contact information with the claimer securely.</p>
+          <p>
+            Item owners review all claims in their profile. Approve legitimate
+            claims to share contact information with the claimer securely.
+          </p>
         </div>
         <div className={styles.step}>
           <div className={styles.stepNumber}>6</div>
           <h3>🤝 Connect & Reunite</h3>
-          <p>Once approved, both parties receive each other's contact info via email. Arrange a safe meetup to return the item!</p>
+          <p>
+            Once approved, both parties receive each other's contact info via
+            email. Arrange a safe meetup to return the item!
+          </p>
         </div>
         <div className={styles.successImageCard}>
-          <img 
-            src="/handshake.png" 
-            alt="Successful Reunion" 
+          <img
+            src="/handshake.png"
+            alt="Successful Reunion"
             className={styles.handshakeImg}
           />
-          <p className={styles.successText}>Join thousands of happy users who've successfully reunited with their belongings!</p>
+          <p className={styles.successText}>
+            Join thousands of happy users who've successfully reunited with
+            their belongings!
+          </p>
         </div>
       </div>
     </section>

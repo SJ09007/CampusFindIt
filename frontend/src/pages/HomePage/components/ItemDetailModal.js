@@ -203,7 +203,11 @@ const ItemDetailModal = ({ item = {}, onClose = () => {}, onClaimSuccess }) => {
       if (!item.date) return "";
       const d = new Date(item.date);
       if (isNaN(d.getTime())) return "";
-      return d.toLocaleString();
+      return d.toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      });
     } catch {
       return "";
     }
