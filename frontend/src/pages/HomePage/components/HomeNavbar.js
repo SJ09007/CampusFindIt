@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import styles from "../styles/HomeNavbar.module.css";
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:3100/api";
+const API_BASE_URL =
+  process.env.REACT_APP_API_URL || "http://localhost:3100/api";
 
 /**
  * @param {object} props
@@ -20,11 +21,11 @@ const HomeNavbar = ({ onLogout, onFilterChange, currentFilter }) => {
 
       fetch(`${API_BASE_URL}/notifications/unread-count`, {
         credentials: "include",
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token}` },
       })
-        .then(res => res.json())
-        .then(data => setUnreadCount(data.count || 0))
-        .catch(err => console.error("Error fetching unread count:", err));
+        .then((res) => res.json())
+        .then((data) => setUnreadCount(data.count || 0))
+        .catch((err) => console.error("Error fetching unread count:", err));
     };
 
     fetchUnreadCount();
@@ -77,35 +78,29 @@ const HomeNavbar = ({ onLogout, onFilterChange, currentFilter }) => {
         />
       </div>
       <ul className={styles.menu}>
-        <li 
-          onClick={() => window.location.href = "/"}
-          style={{ cursor: "pointer" }}
+        <li
+          onClick={() => handleFilterClick("all")}
+          style={{
+            fontWeight: currentFilter === "all" ? "bold" : "normal",
+            color: currentFilter === "all" ? "#007bff" : "inherit",
+          }}
         >
           Home
         </li>
-        <li 
-          onClick={() => handleFilterClick("all")}
-          style={{ 
-            fontWeight: currentFilter === "all" ? "bold" : "normal",
-            color: currentFilter === "all" ? "#007bff" : "inherit"
-          }}
-        >
-          Browse items
-        </li>
-        <li 
+        <li
           onClick={() => handleFilterClick("lost")}
-          style={{ 
+          style={{
             fontWeight: currentFilter === "lost" ? "bold" : "normal",
-            color: currentFilter === "lost" ? "#007bff" : "inherit"
+            color: currentFilter === "lost" ? "#007bff" : "inherit",
           }}
         >
           Lost items
         </li>
-        <li 
+        <li
           onClick={() => handleFilterClick("found")}
-          style={{ 
+          style={{
             fontWeight: currentFilter === "found" ? "bold" : "normal",
-            color: currentFilter === "found" ? "#007bff" : "inherit"
+            color: currentFilter === "found" ? "#007bff" : "inherit",
           }}
         >
           Found items
@@ -119,12 +114,18 @@ const HomeNavbar = ({ onLogout, onFilterChange, currentFilter }) => {
       </ul>
       <div className={styles.profile}>
         {/* Notification Bell */}
-        <div 
+        <div
           className={styles.notificationBell}
           onClick={() => (window.location.href = "/profile?tab=notifications")}
           title="Notifications"
         >
-          <span className={`${styles.bellIcon} ${unreadCount > 0 ? styles.bellRing : ''}`}>🔔</span>
+          <span
+            className={`${styles.bellIcon} ${
+              unreadCount > 0 ? styles.bellRing : ""
+            }`}
+          >
+            🔔
+          </span>
           {unreadCount > 0 && (
             <span className={styles.notificationBadge}>{unreadCount}</span>
           )}

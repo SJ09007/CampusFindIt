@@ -19,7 +19,7 @@ const Navbar = () => {
   return (
     <nav className={styles.navbar}>
       <div className={styles.logo} onClick={scrollToTop} style={{ cursor: "pointer" }}>
-        Campus Lost & Found
+        CampusFindIt
       </div>
       <ul className={styles.navLinks}>
         <li onClick={scrollToTop}>Home</li>
